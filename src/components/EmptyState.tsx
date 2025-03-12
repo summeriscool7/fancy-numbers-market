@@ -27,29 +27,29 @@ const EmptyState: React.FC<EmptyStateProps> = ({
         return {
           icon: icon || <Search size={48} className="text-gray-300" />,
           title: title || 'No results found',
-          description: description || 'We couldn't find any numbers matching your search criteria.',
-          actionLabel: actionLabel || 'Clear Search',
+          description: description || "We couldn't find any numbers matching your search criteria.",
+          actionLabel: actionLabel || 'Clear Search'
         };
       case 'filter':
         return {
           icon: icon || <Filter size={48} className="text-gray-300" />,
           title: title || 'No matching numbers',
           description: description || 'Try adjusting your filters to find numbers that match your preferences.',
-          actionLabel: actionLabel || 'Reset Filters',
+          actionLabel: actionLabel || 'Reset Filters'
         };
       case 'cart':
         return {
           icon: icon || <Search size={48} className="text-gray-300" />,
           title: title || 'Your cart is empty',
           description: description || 'Add some premium numbers to get started.',
-          actionLabel: actionLabel || 'Browse Numbers',
+          actionLabel: actionLabel || 'Browse Numbers'
         };
       default:
         return {
           icon: icon || <Search size={48} className="text-gray-300" />,
           title: title || 'Nothing to show',
           description: description || 'There are no items to display at the moment.',
-          actionLabel: actionLabel || 'Refresh',
+          actionLabel: actionLabel || 'Refresh'
         };
     }
   };
