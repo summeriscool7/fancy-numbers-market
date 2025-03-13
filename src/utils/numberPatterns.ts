@@ -210,7 +210,7 @@ export const formatPhoneNumber = (number: string): string => {
 
 // Generate a list of mock phone numbers
 export const generateMockNumbers = (count = 50): any[] => {
-  const carriers = ['Verizon', 'AT&T', 'T-Mobile', 'Sprint'];
+  const carriers = ['VI', 'AIRTEL', 'JIO'];
   const numbers = [];
   
   for (let i = 0; i < count; i++) {
@@ -242,7 +242,7 @@ export const generateMockNumbers = (count = 50): any[] => {
     
     numbers.push({
       id: `num-${i + 1}`,
-      number: formatPhoneNumber(number),
+      number: number,
       price,
       carrier: carriers[Math.floor(Math.random() * carriers.length)],
       specialPattern: patterns,
