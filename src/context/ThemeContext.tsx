@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Moon, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-type Theme = 'light' | 'dark';
+type Theme = 'dark' | 'light';
 
 interface ThemeContextType {
   theme: Theme;
@@ -19,17 +19,17 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (typeof window !== 'undefined') {
       const savedTheme = localStorage.getItem('theme') as Theme;
       
-      if (savedTheme === 'light' || savedTheme === 'dark') {
+      if (savedTheme === 'dark' || savedTheme === 'light') {
         return savedTheme;
       }
       
       // Use system preference if no saved preference
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        return 'dark';
-      }
+      // if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+      //   return 'light';
+      // }
     }
     
-    return 'light';
+    return 'dark';
   };
 
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
@@ -37,7 +37,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Apply theme to document
   useEffect(() => {
     const root = window.document.documentElement;
-    root.classList.remove('light', 'dark');
+    root.classList.remove('dark', 'light');
     root.classList.add(theme);
     localStorage.setItem('theme', theme);
   }, [theme]);
