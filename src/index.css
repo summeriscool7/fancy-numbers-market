@@ -113,7 +113,7 @@
   
   /* Glassmorphism */
   .glass {
-    @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-glass;
+    @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-glass dark:bg-black/20 dark:border-white/10;
   }
   
   .glass-dark {
@@ -171,3 +171,8 @@
 .stagger-animation > *:nth-child(8) { animation-delay: 0.4s; }
 .stagger-animation > *:nth-child(9) { animation-delay: 0.45s; }
 .stagger-animation > *:nth-child(10) { animation-delay: 0.5s; }
+
+/* Dark mode transitions */
+.dark-transition {
+  @apply transition-colors duration-300 ease-in-out;
+}
