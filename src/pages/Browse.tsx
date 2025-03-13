@@ -7,12 +7,17 @@ import FilterSection from '@/components/FilterSection';
 import EmptyState from '@/components/EmptyState';
 import { generateMockNumbers } from '@/utils/numberPatterns';
 import { filterNumbers, FilterOptions, NumberData } from '@/utils/filterUtils';
+import { Button } from '@/components/ui/button';
+import { Filter as FilterIcon, X } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Browse = () => {
   const [numbers, setNumbers] = useState<NumberData[]>([]);
   const [filteredNumbers, setFilteredNumbers] = useState<NumberData[]>([]);
   const [filters, setFilters] = useState<FilterOptions>({});
   const [isLoading, setIsLoading] = useState(true);
+  const [isFilterVisible, setIsFilterVisible] = useState(false);
+  const isMobile = useIsMobile();
   
   // Load mock numbers
   useEffect(() => {
@@ -40,6 +45,11 @@ const Browse = () => {
     setFilteredNumbers(numbers);
   };
   
+  // Toggle filter sidebar on mobile
+  const toggleFilterSidebar = () => {
+    setIsFilterVisible(!isFilterVisible);
+  };
+  
   return (
     <MainLayout>
       <div className="container mx-auto px-4 py-8">
@@ -62,8 +72,23 @@ const Browse = () => {
           </motion.p>
         </div>
         
+        {/* Mobile Filter Toggle */}
+        {isMobile && (
+          <div className="mb-4">
+            <Button 
+              variant="outline" 
+              onClick={toggleFilterSidebar}
+              className="w-full"
+            >
+              <FilterIcon size={16} className="mr-2" />
+              {isFilterVisible ? 'Hide Filters' : 'Show Filters'}
+            </Button>
+          </div>
+        )}
+        
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <div className="lg:col-span-1">
+          {/* Filter Section - Desktop (always visible) and Mobile (toggleable) */}
+          <div className={`lg:col-span-1 ${isMobile ? (isFilterVisible ? 'block' : 'hidden') : 'block'}`}>
             <div className="sticky top-24">
               <FilterSection 
                 onFilterChange={handleFilterChange}
@@ -72,9 +97,9 @@ const Browse = () => {
             </div>
           </div>
           
-          <div className="lg:col-span-3">
+          <div className={`${isMobile && isFilterVisible ? 'hidden' : 'block'} lg:col-span-3`}>
             {isLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {Array.from({ length: 9 }).map((_, index) => (
                   <div key={index} className="bg-gray-100 rounded-xl h-64 animate-pulse"></div>
                 ))}
@@ -94,7 +119,7 @@ const Browse = () => {
                   Showing {filteredNumbers.length} numbers
                 </motion.p>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                   {filteredNumbers.map((number, index) => (
                     <NumberCard key={number.id} number={number} index={index} />
                   ))}

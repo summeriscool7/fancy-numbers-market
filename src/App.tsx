@@ -7,6 +7,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from "@/context/CartContext";
 import Index from "./pages/Index";
 import Browse from "./pages/Browse";
+import BirthdateNumbers from "./pages/BirthdateNumbers";
+import VehicleNumbers from "./pages/VehicleNumbers";
+import Numerology from "./pages/Numerology";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,6 +24,9 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/browse" element={<Browse />} />
+            <Route path="/birthdate-numbers" element={<BirthdateNumbers />} />
+            <Route path="/vehicle-numbers" element={<VehicleNumbers />} />
+            <Route path="/numerology" element={<Numerology />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -1,3 +1,4 @@
+
 export interface FilterOptions {
   digits?: string;
   exactPlacement?: { digit: string; position: number }[];
@@ -11,6 +12,11 @@ export interface FilterOptions {
   carriers?: string[];
   specialPatterns?: string[];
   query?: string;
+  luckyDigits?: string[];
+  unluckyDigits?: string[];
+  isPremium?: boolean;
+  isRoyal?: boolean;
+  isLucky?: boolean;
 }
 
 export interface NumberData {
@@ -79,6 +85,18 @@ export const hasConsecutiveSameDigits = (number: string, digit: string, minConse
   const digitsOnly = number.replace(/\D/g, '');
   const regex = new RegExp(`${digit}{${minConsecutive},}`, 'g');
   return regex.test(digitsOnly);
+};
+
+// Check if number contains specific digits
+export const containsDigits = (number: string, digits: string[]): boolean => {
+  const digitsOnly = number.replace(/\D/g, '');
+  return digits.every(digit => digitsOnly.includes(digit));
+};
+
+// Check if number avoids specific digits
+export const avoidsDigits = (number: string, digits: string[]): boolean => {
+  const digitsOnly = number.replace(/\D/g, '');
+  return digits.every(digit => !digitsOnly.includes(digit));
 };
 
 // Filter numbers based on all criteria
@@ -151,7 +169,7 @@ export const filterNumbers = (numbers: NumberData[], filters: FilterOptions): Nu
     }
     
     // Filter by price range
-    if (filters.priceRange) {
+    if (filters.priceRange && (filters.priceRange.min > 0 || filters.priceRange.max > 0)) {
       const { min, max } = filters.priceRange;
       if (item.price < min || (max > 0 && item.price > max)) {
         return false;
@@ -171,6 +189,35 @@ export const filterNumbers = (numbers: NumberData[], filters: FilterOptions): Nu
         item.specialPattern?.includes(pattern))) {
         return false;
       }
+    }
+    
+    // Filter by lucky digits (must contain)
+    if (filters.luckyDigits && filters.luckyDigits.length > 0) {
+      if (!containsDigits(number, filters.luckyDigits)) {
+        return false;
+      }
+    }
+    
+    // Filter by unlucky digits (must not contain)
+    if (filters.unluckyDigits && filters.unluckyDigits.length > 0) {
+      if (!avoidsDigits(number, filters.unluckyDigits)) {
+        return false;
+      }
+    }
+    
+    // Filter by premium property
+    if (filters.isPremium && (!item.specialPattern || item.specialPattern.length < 2)) {
+      return false;
+    }
+    
+    // Filter by royal property
+    if (filters.isRoyal && (!item.specialPattern || !item.specialPattern.includes('Royal'))) {
+      return false;
+    }
+    
+    // Filter by lucky property
+    if (filters.isLucky && (!item.specialPattern || !item.specialPattern.includes('Lucky'))) {
+      return false;
     }
     
     // Global search query

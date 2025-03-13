@@ -7,41 +7,37 @@ import EmptyState from '@/components/EmptyState';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { CalendarIcon } from 'lucide-react';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { format } from 'date-fns';
+import { Car } from 'lucide-react';
 import { generateMockNumbers } from '@/utils/numberPatterns';
-import { getBirthdateNumbers } from '@/utils/filterUtils';
+import { getVehicleNumberVariants } from '@/utils/filterUtils';
 import { NumberData } from '@/utils/filterUtils';
 import { useIsMobile } from '@/hooks/use-mobile';
 
-const BirthdateNumbers = () => {
-  const [date, setDate] = useState<Date | undefined>(undefined);
+const VehicleNumbers = () => {
+  const [vehicleNumber, setVehicleNumber] = useState('');
   const [numbers, setNumbers] = useState<NumberData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [searched, setSearched] = useState(false);
   const isMobile = useIsMobile();
   
   const handleSearch = () => {
-    if (!date) return;
+    if (!vehicleNumber.trim()) return;
     
     setIsLoading(true);
+    setSearched(true);
     
-    // Format date for processing
-    const formattedDate = format(date, 'yyyy-MM-dd');
-    
-    // Get birthdate number patterns
-    const birthdateFormats = getBirthdateNumbers(formattedDate);
+    // Get vehicle number variants
+    const vehicleVariants = getVehicleNumberVariants(vehicleNumber);
     
     // Simulate API call
     setTimeout(() => {
       // Generate mock numbers
       const allNumbers = generateMockNumbers(100);
       
-      // Filter numbers that contain birthdate patterns
+      // Filter numbers that contain vehicle number variants
       const filteredNumbers = allNumbers.filter(numberData => {
         const number = numberData.number.replace(/\D/g, '');
-        return birthdateFormats.some(format => number.includes(format));
+        return vehicleVariants.some(variant => number.includes(variant));
       });
       
       setNumbers(filteredNumbers);
@@ -59,7 +55,7 @@ const BirthdateNumbers = () => {
             transition={{ duration: 0.5 }}
             className="text-3xl font-bold mb-2"
           >
-            Birthdate Numbers
+            Vehicle Numbers
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: -20 }}
@@ -67,46 +63,36 @@ const BirthdateNumbers = () => {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-gray-600"
           >
-            Find premium numbers that match your special date
+            Find premium numbers that match your vehicle registration
           </motion.p>
         </div>
         
         <div className="max-w-3xl mx-auto mb-10">
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
             <div className="mb-6">
-              <h3 className="font-medium text-lg mb-2">Enter Your Birthdate</h3>
+              <h3 className="font-medium text-lg mb-2">Enter Your Vehicle Number</h3>
               <p className="text-gray-500 text-sm mb-4">
-                We'll find numbers that include your birthdate in various formats
+                We'll find numbers that include your vehicle registration in various formats
               </p>
               
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-1">
-                  <Label htmlFor="birthdate">Select Date</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start text-left font-normal mt-1"
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {date ? format(date, 'PPP') : <span>Pick a date</span>}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={date}
-                        onSelect={setDate}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <Label htmlFor="vehicle-number">Vehicle Registration</Label>
+                  <div className="flex mt-1">
+                    <Input
+                      id="vehicle-number"
+                      value={vehicleNumber}
+                      onChange={(e) => setVehicleNumber(e.target.value)}
+                      placeholder="e.g. MH02EB1234"
+                      className="flex-1"
+                    />
+                  </div>
                 </div>
                 
                 <div className="flex items-end">
                   <Button 
                     onClick={handleSearch} 
-                    disabled={!date}
+                    disabled={!vehicleNumber.trim()}
                     className="w-full md:w-auto mt-1"
                   >
                     Find Numbers
@@ -126,7 +112,7 @@ const BirthdateNumbers = () => {
         ) : numbers.length > 0 ? (
           <div>
             <p className="mb-4 text-gray-500">
-              Showing {numbers.length} numbers matching your birthdate
+              Showing {numbers.length} numbers matching your vehicle registration
             </p>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -135,16 +121,16 @@ const BirthdateNumbers = () => {
               ))}
             </div>
           </div>
-        ) : date ? (
+        ) : searched ? (
           <EmptyState 
             type="search"
             title="No matching numbers found"
-            description="We couldn't find any numbers that match your birthdate. Try another date."
-            icon={<CalendarIcon size={48} className="text-gray-300" />}
+            description="We couldn't find any numbers that match your vehicle registration. Try another format."
+            icon={<Car size={48} className="text-gray-300" />}
           />
         ) : (
           <div className="text-center text-gray-500 py-10">
-            <p>Select a date to find matching numbers</p>
+            <p>Enter your vehicle registration to find matching numbers</p>
           </div>
         )}
       </div>
@@ -152,4 +138,4 @@ const BirthdateNumbers = () => {
   );
 };
 
-export default BirthdateNumbers;
+export default VehicleNumbers;

@@ -20,8 +20,12 @@ import {
   Hash, 
   Inbox, 
   RefreshCw,
-  Calculator 
+  Calculator,
+  Tag,
+  Star,
+  Sparkles
 } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface FilterSectionProps {
   onFilterChange: (filters: FilterOptions) => void;
@@ -32,6 +36,8 @@ const FilterSection: React.FC<FilterSectionProps> = ({
   onFilterChange, 
   onFilterReset 
 }) => {
+  const isMobile = useIsMobile();
+  
   const [filters, setFilters] = useState<FilterOptions>({
     digits: '',
     exactPlacement: [],
@@ -42,6 +48,9 @@ const FilterSection: React.FC<FilterSectionProps> = ({
     singleDigitSum: null,
     specialPatterns: [],
     query: '',
+    luckyDigits: [],
+    unluckyDigits: [],
+    priceRange: null,
   });
   
   const patternOptions = [
@@ -78,6 +87,22 @@ const FilterSection: React.FC<FilterSectionProps> = ({
     handleFilterChange('specialPatterns', newPatterns);
   };
   
+  const handleDigitPreferenceToggle = (digit: string, type: 'lucky' | 'unlucky') => {
+    const currentDigits = type === 'lucky' 
+      ? filters.luckyDigits || [] 
+      : filters.unluckyDigits || [];
+    
+    let newDigits: string[];
+    
+    if (currentDigits.includes(digit)) {
+      newDigits = currentDigits.filter(d => d !== digit);
+    } else {
+      newDigits = [...currentDigits, digit];
+    }
+    
+    handleFilterChange(type === 'lucky' ? 'luckyDigits' : 'unluckyDigits', newDigits);
+  };
+  
   const handleReset = () => {
     const resetFilters: FilterOptions = {
       digits: '',
@@ -89,6 +114,9 @@ const FilterSection: React.FC<FilterSectionProps> = ({
       singleDigitSum: null,
       specialPatterns: [],
       query: '',
+      luckyDigits: [],
+      unluckyDigits: [],
+      priceRange: null,
     };
     
     setFilters(resetFilters);
@@ -101,20 +129,23 @@ const FilterSection: React.FC<FilterSectionProps> = ({
     { label: 'Repeating (0000, 9999)', value: 'repeating', filter: 'repeatingPattern' },
   ];
   
+  // All accordion sections expanded by default
+  const defaultOpenSections = ['digits', 'patterns', 'sequences', 'numerology', 'preferences', 'price'];
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden"
     >
-      <div className="p-5 border-b border-gray-100">
+      <div className="p-4 sm:p-5 border-b border-gray-100">
         <h3 className="font-medium flex items-center">
           <Filter size={18} className="mr-2" />
           Filters
         </h3>
       </div>
       
-      <div className="p-5 border-b border-gray-100">
+      <div className="p-4 sm:p-5 border-b border-gray-100">
         <div className="relative">
           <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           <Input
@@ -126,7 +157,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({
         </div>
       </div>
       
-      <Accordion type="multiple" className="px-2">
+      <Accordion type="multiple" defaultValue={defaultOpenSections} className="px-2">
         {/* Specific Digits Filter */}
         <AccordionItem value="digits">
           <AccordionTrigger className="py-3 px-3">
@@ -270,6 +301,170 @@ const FilterSection: React.FC<FilterSectionProps> = ({
                   min={1}
                   max={9}
                 />
+              </div>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+        
+        {/* Digit Preferences */}
+        <AccordionItem value="preferences">
+          <AccordionTrigger className="py-3 px-3">
+            <span className="flex items-center text-sm">
+              <Star size={16} className="mr-2" />
+              Digit Preferences
+            </span>
+          </AccordionTrigger>
+          <AccordionContent className="px-3 pb-3">
+            <div className="space-y-4">
+              <div>
+                <Label className="text-xs text-gray-500 mb-2 block">
+                  Lucky Digits (numbers you want)
+                </Label>
+                <div className="grid grid-cols-5 gap-2">
+                  {Array.from({ length: 10 }, (_, i) => i.toString()).map((digit) => (
+                    <Button
+                      key={`lucky-${digit}`}
+                      type="button"
+                      variant={filters.luckyDigits?.includes(digit) ? "default" : "outline"}
+                      size="sm"
+                      className="h-8 w-8 p-0"
+                      onClick={() => handleDigitPreferenceToggle(digit, 'lucky')}
+                    >
+                      {digit}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+              
+              <div>
+                <Label className="text-xs text-gray-500 mb-2 block">
+                  Unlucky Digits (numbers to avoid)
+                </Label>
+                <div className="grid grid-cols-5 gap-2">
+                  {Array.from({ length: 10 }, (_, i) => i.toString()).map((digit) => (
+                    <Button
+                      key={`unlucky-${digit}`}
+                      type="button"
+                      variant={filters.unluckyDigits?.includes(digit) ? "destructive" : "outline"}
+                      size="sm"
+                      className="h-8 w-8 p-0"
+                      onClick={() => handleDigitPreferenceToggle(digit, 'unlucky')}
+                    >
+                      {digit}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+        
+        {/* Price Range */}
+        <AccordionItem value="price">
+          <AccordionTrigger className="py-3 px-3">
+            <span className="flex items-center text-sm">
+              <Tag size={16} className="mr-2" />
+              Price Range
+            </span>
+          </AccordionTrigger>
+          <AccordionContent className="px-3 pb-3">
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label htmlFor="min-price" className="text-xs text-gray-500 mb-1 block">
+                    Min Price ($)
+                  </Label>
+                  <Input
+                    id="min-price"
+                    type="number"
+                    placeholder="Min"
+                    value={filters.priceRange?.min || ''}
+                    onChange={(e) => {
+                      const min = e.target.value === '' ? 0 : parseInt(e.target.value);
+                      const max = filters.priceRange?.max || 0;
+                      handleFilterChange('priceRange', { min, max });
+                    }}
+                    min={0}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="max-price" className="text-xs text-gray-500 mb-1 block">
+                    Max Price ($)
+                  </Label>
+                  <Input
+                    id="max-price"
+                    type="number"
+                    placeholder="Max"
+                    value={filters.priceRange?.max || ''}
+                    onChange={(e) => {
+                      const max = e.target.value === '' ? 0 : parseInt(e.target.value);
+                      const min = filters.priceRange?.min || 0;
+                      handleFilterChange('priceRange', { min, max });
+                    }}
+                    min={0}
+                  />
+                </div>
+              </div>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+        
+        {/* Premium Filters */}
+        <AccordionItem value="premium">
+          <AccordionTrigger className="py-3 px-3">
+            <span className="flex items-center text-sm">
+              <Sparkles size={16} className="mr-2" />
+              Premium Filters
+            </span>
+          </AccordionTrigger>
+          <AccordionContent className="px-3 pb-3">
+            <div className="space-y-3">
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="premium-only"
+                  checked={Boolean(filters.isPremium)}
+                  onCheckedChange={(checked) => 
+                    handleFilterChange('isPremium', checked)
+                  }
+                />
+                <Label 
+                  htmlFor="premium-only"
+                  className="text-sm leading-none"
+                >
+                  Premium Numbers Only
+                </Label>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="royal-only"
+                  checked={Boolean(filters.isRoyal)}
+                  onCheckedChange={(checked) => 
+                    handleFilterChange('isRoyal', checked)
+                  }
+                />
+                <Label 
+                  htmlFor="royal-only"
+                  className="text-sm leading-none"
+                >
+                  Royal Numbers Only
+                </Label>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="lucky-only"
+                  checked={Boolean(filters.isLucky)}
+                  onCheckedChange={(checked) => 
+                    handleFilterChange('isLucky', checked)
+                  }
+                />
+                <Label 
+                  htmlFor="lucky-only"
+                  className="text-sm leading-none"
+                >
+                  Lucky Numbers Only
+                </Label>
               </div>
             </div>
           </AccordionContent>
