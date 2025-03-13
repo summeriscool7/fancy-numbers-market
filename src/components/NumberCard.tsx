@@ -15,6 +15,7 @@ import {
 import PatternChip from '@/components/PatternChip';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from 'sonner';
+import { useTheme } from '@/context/ThemeContext';
 
 interface NumberCardProps {
   number: NumberItem;
@@ -28,6 +29,7 @@ const NumberCard: React.FC<NumberCardProps> = ({ number, index = 0 }) => {
   const alreadyInCart = isInCart(number.id);
   const isWishlisted = isInWishlist(number.id);
   const isMobile = useIsMobile();
+  const { theme } = useTheme();
   
   // Format price
   const formattedPrice = new Intl.NumberFormat('en-US', {
@@ -54,8 +56,17 @@ const NumberCard: React.FC<NumberCardProps> = ({ number, index = 0 }) => {
   const toggleWishlist = () => {
     if (isWishlisted) {
       removeFromWishlist(number.id);
+      toast.success("Removed from wishlist");
     } else {
       addToWishlist(number);
+      toast.success("Added to wishlist");
+    }
+  };
+  
+  const handleAddToCart = () => {
+    if (!alreadyInCart) {
+      addItem(number);
+      toast.success("Added to cart");
     }
   };
   
@@ -65,16 +76,16 @@ const NumberCard: React.FC<NumberCardProps> = ({ number, index = 0 }) => {
       animate="visible"
       variants={cardVariants}
       whileHover={{ y: -5, transition: { duration: 0.2 } }}
-      className="relative h-full"
+      className="relative h-full glow-effect"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="bg-white rounded-xl overflow-hidden shadow-card hover:shadow-lg transition-all duration-300 h-full flex flex-col">
+      <div className="enhanced-number-card h-full flex flex-col number-card">
         <div className="p-4 sm:p-5">
           <div className="flex items-center justify-between mb-2 sm:mb-3">
             <div className="flex items-center space-x-2">
               {number.carrier && (
-                <span className="text-xs font-medium text-gray-500">
+                <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
                   {number.carrier}
                 </span>
               )}
@@ -84,7 +95,7 @@ const NumberCard: React.FC<NumberCardProps> = ({ number, index = 0 }) => {
               <Button
                 variant="ghost"
                 size="icon"
-                className={`h-7 w-7 ${isWishlisted ? 'text-red-500' : 'text-gray-400'}`}
+                className={`h-7 w-7 transition-colors ${isWishlisted ? 'text-red-500 hover:text-red-600' : 'text-gray-400 hover:text-gray-500 dark:text-gray-300 dark:hover:text-gray-200'}`}
                 onClick={toggleWishlist}
               >
                 <Heart 
@@ -96,7 +107,7 @@ const NumberCard: React.FC<NumberCardProps> = ({ number, index = 0 }) => {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-7 w-7">
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-gray-400 hover:text-gray-500 dark:text-gray-300 dark:hover:text-gray-200">
                       <Info size={14} />
                     </Button>
                   </TooltipTrigger>
@@ -111,7 +122,7 @@ const NumberCard: React.FC<NumberCardProps> = ({ number, index = 0 }) => {
             </div>
           </div>
           
-          <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold text-center my-3 sm:my-4">
+          <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold text-center my-3 sm:my-4 text-gray-900 dark:text-white">
             {formattedNumber}
           </h3>
           
@@ -122,14 +133,14 @@ const NumberCard: React.FC<NumberCardProps> = ({ number, index = 0 }) => {
           </div>
         </div>
         
-        <div className="mt-auto border-t border-gray-100 p-3 sm:p-4 flex items-center justify-between">
-          <span className="font-semibold text-base sm:text-lg">{formattedPrice}</span>
+        <div className="mt-auto border-t border-gray-100 dark:border-gray-700 p-3 sm:p-4 flex items-center justify-between">
+          <span className="font-semibold text-base sm:text-lg text-gray-900 dark:text-white">{formattedPrice}</span>
           
           <Button
             variant={alreadyInCart ? "outline" : "default"}
             size={isMobile ? "sm" : "default"}
-            className={`transition-all duration-300 text-xs sm:text-sm ${alreadyInCart ? 'text-primary border-primary' : ''}`}
-            onClick={() => !alreadyInCart && addItem(number)}
+            className={`transition-all duration-300 text-xs sm:text-sm ${alreadyInCart ? 'text-primary border-primary dark:border-primary dark:text-primary' : ''}`}
+            onClick={handleAddToCart}
             disabled={alreadyInCart}
           >
             {alreadyInCart ? (

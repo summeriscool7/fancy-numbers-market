@@ -12,32 +12,32 @@ const PatternChip: React.FC<PatternChipProps> = ({ pattern, className }) => {
   const getPatternStyles = () => {
     switch (pattern) {
       case PATTERN_CATEGORIES.SEQUENTIAL:
-        return 'bg-blue-50 text-blue-600 border-blue-200';
+        return 'pattern-sequential';
       case PATTERN_CATEGORIES.REPEATING:
-        return 'bg-purple-50 text-purple-600 border-purple-200';
+        return 'pattern-repeating';
       case PATTERN_CATEGORIES.PALINDROME:
-        return 'bg-green-50 text-green-600 border-green-200';
+        return 'pattern-palindrome';
       case PATTERN_CATEGORIES.MIRROR:
-        return 'bg-pink-50 text-pink-600 border-pink-200';
+        return 'pattern-mirror';
       case PATTERN_CATEGORIES.ASCENDING:
-        return 'bg-indigo-50 text-indigo-600 border-indigo-200';
+        return 'pattern-ascending';
       case PATTERN_CATEGORIES.DESCENDING:
-        return 'bg-sky-50 text-sky-600 border-sky-200';
+        return 'pattern-descending';
       case PATTERN_CATEGORIES.PREMIUM:
-        return 'bg-amber-50 text-amber-600 border-amber-200';
+        return 'pattern-premium';
       case PATTERN_CATEGORIES.ROYAL:
-        return 'bg-red-50 text-red-600 border-red-200';
+        return 'pattern-royal';
       case PATTERN_CATEGORIES.LUCKY:
-        return 'bg-emerald-50 text-emerald-600 border-emerald-200';
+        return 'pattern-lucky';
       default:
-        return 'bg-gray-50 text-gray-600 border-gray-200';
+        return 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700';
     }
   };
 
   return (
     <span 
       className={cn(
-        'inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border',
+        'inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border transition-colors duration-200',
         getPatternStyles(),
         className
       )}

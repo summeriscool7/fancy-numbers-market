@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import MainLayout from '@/layouts/MainLayout';
 import { generateMockNumbers } from '@/utils/numberPatterns';
+import NumberSearch from '@/components/NumberSearch';
 
 const Index = () => {
   // Get a small selection of featured numbers
@@ -37,8 +38,34 @@ const Index = () => {
       
       <Hero />
       
+      {/* Search Section */}
+      <div className="bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-900 py-12">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center mb-8">
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-4"
+            >
+              Find Your Dream Number
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="text-lg text-gray-600 dark:text-gray-300"
+            >
+              Enter any number sequence to search or click on suggested patterns
+            </motion.p>
+          </div>
+          
+          <NumberSearch className="mb-6" />
+        </div>
+      </div>
+      
       {/* Benefits Section */}
-      <div className="bg-white py-12">
+      <div className="bg-white dark:bg-gray-900 py-12">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {benefits.map((benefit, index) => (
@@ -47,20 +74,20 @@ const Index = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 + (index * 0.1) }}
-                className="bg-gray-50 rounded-xl p-6 text-center shadow-subtle"
+                className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 text-center shadow-subtle border border-gray-100 dark:border-gray-700"
               >
-                <div className="w-12 h-12 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-12 h-12 bg-primary/10 text-primary dark:bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <CheckCircle2 size={24} />
                 </div>
-                <h3 className="text-lg font-bold mb-2">{benefit.title}</h3>
-                <p className="text-gray-600 text-sm">{benefit.description}</p>
+                <h3 className="text-lg font-bold mb-2 dark:text-white">{benefit.title}</h3>
+                <p className="text-gray-600 dark:text-gray-300 text-sm">{benefit.description}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </div>
       
-      <div className="bg-gray-50 py-16">
+      <div className="bg-gray-50 dark:bg-gray-900 py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             <div className="flex flex-col md:flex-row md:items-center justify-between mb-10">
@@ -69,10 +96,10 @@ const Index = () => {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5 }}
               >
-                <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-2">
+                <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-2">
                   Featured Numbers
                 </h2>
-                <p className="text-gray-600">
+                <p className="text-gray-600 dark:text-gray-300">
                   Explore our selection of premium mobile numbers
                 </p>
               </motion.div>
@@ -82,7 +109,7 @@ const Index = () => {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
               >
-                <Button asChild variant="outline">
+                <Button asChild variant="outline" className="dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800">
                   <Link to="/browse">
                     View All
                     <ArrowRight size={16} className="ml-2" />
@@ -106,7 +133,7 @@ const Index = () => {
       </div>
       
       {/* How It Works Section */}
-      <div className="py-16 bg-white">
+      <div className="py-16 bg-white dark:bg-gray-900">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-12">
@@ -114,7 +141,7 @@ const Index = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="text-3xl font-bold tracking-tight text-gray-900 mb-4"
+                className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-4"
               >
                 How It Works
               </motion.h2>
@@ -122,7 +149,7 @@ const Index = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
-                className="text-xl text-gray-600 max-w-3xl mx-auto"
+                className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto"
               >
                 Get your premium number in 4 simple steps
               </motion.p>
@@ -135,14 +162,14 @@ const Index = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}
-                  className="bg-white rounded-xl overflow-hidden shadow-card hover:shadow-lg transition-all duration-300 border border-gray-100"
+                  className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-card hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700"
                 >
                   <div className="p-6">
-                    <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mb-4 relative">
+                    <div className="w-12 h-12 rounded-full bg-primary/10 dark:bg-primary/20 text-primary flex items-center justify-center mb-4 relative">
                       <span className="text-xl font-bold">{index + 1}</span>
                     </div>
-                    <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
-                    <p className="text-gray-600">{step.description}</p>
+                    <h3 className="text-xl font-semibold mb-2 dark:text-white">{step.title}</h3>
+                    <p className="text-gray-600 dark:text-gray-300">{step.description}</p>
                   </div>
                 </motion.div>
               ))}
@@ -151,7 +178,7 @@ const Index = () => {
         </div>
       </div>
       
-      <div className="py-16 bg-white">
+      <div className="py-16 bg-white dark:bg-gray-900">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-12">
@@ -159,7 +186,7 @@ const Index = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="text-3xl font-bold tracking-tight text-gray-900 mb-4"
+                className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-4"
               >
                 Find Your Perfect Number
               </motion.h2>
@@ -167,7 +194,7 @@ const Index = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
-                className="text-xl text-gray-600 max-w-3xl mx-auto"
+                className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto"
               >
                 Explore different ways to find your ideal mobile number
               </motion.p>
@@ -180,15 +207,15 @@ const Index = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}
-                  className="bg-white rounded-xl overflow-hidden shadow-card hover:shadow-lg transition-all duration-300 border border-gray-100"
+                  className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-card hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700"
                 >
                   <div className="p-6">
-                    <div className="h-12 w-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mb-4">
+                    <div className="h-12 w-12 rounded-full bg-primary/10 dark:bg-primary/20 text-primary flex items-center justify-center mb-4">
                       {category.icon}
                     </div>
-                    <h3 className="text-xl font-semibold mb-2">{category.title}</h3>
-                    <p className="text-gray-600 mb-4">{category.description}</p>
-                    <Button asChild variant="outline" className="w-full">
+                    <h3 className="text-xl font-semibold mb-2 dark:text-white">{category.title}</h3>
+                    <p className="text-gray-600 dark:text-gray-300 mb-4">{category.description}</p>
+                    <Button asChild variant="outline" className="w-full dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800">
                       <Link to={category.link}>
                         Explore
                         <ArrowRight size={16} className="ml-2" />
