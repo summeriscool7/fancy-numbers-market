@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useCart, NumberItem } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, Check, Info, Heart } from 'lucide-react';
+import { ShoppingCart, Check, Info, Heart, IndianRupee } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { 
   Tooltip, 
@@ -31,10 +31,11 @@ const NumberCard: React.FC<NumberCardProps> = ({ number, index = 0 }) => {
   const isMobile = useIsMobile();
   const { theme } = useTheme();
   
-  // Format price
-  const formattedPrice = new Intl.NumberFormat('en-US', {
+  // Format price with Rupee symbol
+  const formattedPrice = new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'INR',
+    maximumFractionDigits: 0,
   }).format(number.price);
   
   // Format number without hyphens
@@ -80,7 +81,7 @@ const NumberCard: React.FC<NumberCardProps> = ({ number, index = 0 }) => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="enhanced-number-card h-full flex flex-col number-card">
+      <div className="enhanced-number-card h-full flex flex-col number-card dark:border-gray-700 dark:bg-gray-800/80">
         <div className="p-4 sm:p-5">
           <div className="flex items-center justify-between mb-2 sm:mb-3">
             <div className="flex items-center space-x-2">
@@ -95,7 +96,7 @@ const NumberCard: React.FC<NumberCardProps> = ({ number, index = 0 }) => {
               <Button
                 variant="ghost"
                 size="icon"
-                className={`h-7 w-7 transition-colors ${isWishlisted ? 'text-red-500 hover:text-red-600' : 'text-gray-400 hover:text-gray-500 dark:text-gray-300 dark:hover:text-gray-200'}`}
+                className={`h-7 w-7 transition-colors ${isWishlisted ? 'text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-500' : 'text-gray-400 hover:text-gray-500 dark:text-gray-300 dark:hover:text-gray-200'}`}
                 onClick={toggleWishlist}
               >
                 <Heart 
@@ -131,10 +132,25 @@ const NumberCard: React.FC<NumberCardProps> = ({ number, index = 0 }) => {
               <PatternChip key={i} pattern={pattern} />
             ))}
           </div>
+          
+          {/* Digit Sum Info */}
+          <div className="flex justify-around text-xs py-2 border-t border-b border-gray-100 dark:border-gray-700 mt-2">
+            <div className="text-center">
+              <span className="block text-gray-500 dark:text-gray-400">Total Sum</span>
+              <span className="font-semibold text-gray-700 dark:text-gray-300">{number.digitSum}</span>
+            </div>
+            <div className="text-center">
+              <span className="block text-gray-500 dark:text-gray-400">Single Digit</span>
+              <span className="font-semibold text-gray-700 dark:text-gray-300">{number.singleDigitSum}</span>
+            </div>
+          </div>
         </div>
         
         <div className="mt-auto border-t border-gray-100 dark:border-gray-700 p-3 sm:p-4 flex items-center justify-between">
-          <span className="font-semibold text-base sm:text-lg text-gray-900 dark:text-white">{formattedPrice}</span>
+          <span className="font-semibold text-base sm:text-lg text-gray-900 dark:text-white flex items-center">
+            <IndianRupee size={16} className="mr-1 text-green-600 dark:text-green-500" /> 
+            {number.price.toLocaleString('en-IN')}
+          </span>
           
           <Button
             variant={alreadyInCart ? "outline" : "default"}

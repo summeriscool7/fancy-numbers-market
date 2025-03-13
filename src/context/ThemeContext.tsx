@@ -49,14 +49,14 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Theme toggle component
   const ThemeToggle: React.FC = () => (
     <Button 
-      variant="ghost" 
+      variant="outline" 
       size="icon" 
       onClick={toggleTheme}
-      className="rounded-full w-9 h-9 p-0"
+      className="rounded-full w-9 h-9 p-0 border-gray-200 dark:border-gray-700"
       aria-label="Toggle theme"
     >
       {theme === 'dark' ? (
-        <Sun size={18} className="text-amber-300" />
+        <Sun size={18} className="text-amber-400" />
       ) : (
         <Moon size={18} />
       )}

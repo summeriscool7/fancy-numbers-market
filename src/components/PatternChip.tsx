@@ -30,7 +30,7 @@ const PatternChip: React.FC<PatternChipProps> = ({ pattern, className }) => {
       case PATTERN_CATEGORIES.LUCKY:
         return 'pattern-lucky';
       default:
-        return 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700';
+        return 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600';
     }
   };
 

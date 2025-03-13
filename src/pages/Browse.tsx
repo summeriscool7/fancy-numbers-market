@@ -10,6 +10,7 @@ import { filterNumbers, FilterOptions, NumberData } from '@/utils/filterUtils';
 import { Button } from '@/components/ui/button';
 import { Filter as FilterIcon, X } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useSearchParams } from 'react-router-dom';
 
 const Browse = () => {
   const [numbers, setNumbers] = useState<NumberData[]>([]);
@@ -18,6 +19,7 @@ const Browse = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const isMobile = useIsMobile();
+  const [searchParams] = useSearchParams();
   
   // Load mock numbers
   useEffect(() => {
@@ -29,13 +31,33 @@ const Browse = () => {
       setNumbers(mockNumbers);
       setFilteredNumbers(mockNumbers);
       setIsLoading(false);
+      
+      // Get search query from URL if present
+      const query = searchParams.get('q');
+      if (query) {
+        const searchFilters: FilterOptions = { query };
+        setFilters(searchFilters);
+        const filtered = filterNumbers(mockNumbers, searchFilters);
+        setFilteredNumbers(filtered);
+      }
     }, 800);
-  }, []);
+  }, [searchParams]);
   
   // Handle filter changes
   const handleFilterChange = (newFilters: FilterOptions) => {
+    // First, handle exact pattern searching for digits
+    let filtered = numbers;
+    
+    if (newFilters.digits) {
+      // This improved search will match if the number contains the digits in sequence
+      filtered = numbers.filter(number => 
+        number.number.replace(/-/g, '').includes(newFilters.digits || '')
+      );
+    }
+    
+    // Then apply remaining filters
     setFilters(newFilters);
-    const filtered = filterNumbers(numbers, newFilters);
+    filtered = filterNumbers(filtered, newFilters);
     setFilteredNumbers(filtered);
   };
   
@@ -58,7 +80,7 @@ const Browse = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="text-3xl font-bold mb-2"
+            className="text-3xl font-bold mb-2 text-gray-900 dark:text-white"
           >
             Browse Premium Numbers
           </motion.h1>
@@ -66,7 +88,7 @@ const Browse = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-gray-600"
+            className="text-gray-600 dark:text-gray-400"
           >
             Explore our collection of exclusive mobile numbers
           </motion.p>
@@ -78,7 +100,7 @@ const Browse = () => {
             <Button 
               variant="outline" 
               onClick={toggleFilterSidebar}
-              className="w-full"
+              className="w-full dark:border-gray-700 dark:bg-gray-800"
             >
               <FilterIcon size={16} className="mr-2" />
               {isFilterVisible ? 'Hide Filters' : 'Show Filters'}
@@ -101,7 +123,7 @@ const Browse = () => {
             {isLoading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {Array.from({ length: 9 }).map((_, index) => (
-                  <div key={index} className="bg-gray-100 rounded-xl h-64 animate-pulse"></div>
+                  <div key={index} className="bg-gray-100 dark:bg-gray-800 rounded-xl h-64 animate-pulse"></div>
                 ))}
               </div>
             ) : filteredNumbers.length === 0 ? (
@@ -114,7 +136,7 @@ const Browse = () => {
                 <motion.p
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="mb-4 text-gray-500"
+                  className="mb-4 text-gray-500 dark:text-gray-400"
                 >
                   Showing {filteredNumbers.length} numbers
                 </motion.p>
