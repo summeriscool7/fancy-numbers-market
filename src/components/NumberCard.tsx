@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useCart, NumberItem } from '@/context/CartContext';
+import { useWishlist } from '@/context/WishlistContext';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart, Check, Info, Heart } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -22,9 +23,10 @@ interface NumberCardProps {
 
 const NumberCard: React.FC<NumberCardProps> = ({ number, index = 0 }) => {
   const { addItem, isInCart } = useCart();
+  const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
   const [isHovered, setIsHovered] = useState(false);
-  const [isWishlisted, setIsWishlisted] = useState(false);
   const alreadyInCart = isInCart(number.id);
+  const isWishlisted = isInWishlist(number.id);
   const isMobile = useIsMobile();
   
   // Format price
@@ -50,18 +52,10 @@ const NumberCard: React.FC<NumberCardProps> = ({ number, index = 0 }) => {
   };
 
   const toggleWishlist = () => {
-    setIsWishlisted(!isWishlisted);
-    
-    if (!isWishlisted) {
-      toast.success('Added to wishlist', {
-        description: `${formattedNumber} has been added to your wishlist.`,
-        duration: 3000,
-      });
+    if (isWishlisted) {
+      removeFromWishlist(number.id);
     } else {
-      toast.info('Removed from wishlist', {
-        description: `${formattedNumber} has been removed from your wishlist.`,
-        duration: 3000,
-      });
+      addToWishlist(number);
     }
   };
   

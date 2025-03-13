@@ -1,94 +1,118 @@
 
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, Menu, X, Search, Phone, Calendar, Car, Calculator } from 'lucide-react';
+import { ShoppingCart, Menu, X, User } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { useWishlist } from '@/context/WishlistContext';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { motion, AnimatePresence } from 'framer-motion';
 
 interface NavbarProps {
   onCartClick: () => void;
 }
 
 const Navbar: React.FC<NavbarProps> = ({ onCartClick }) => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { items } = useCart();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const { itemCount } = useCart();
+  const { itemCount: wishlistCount } = useWishlist();
   const location = useLocation();
   const isMobile = useIsMobile();
   
-  // Handle scroll effect
+  // Navigation items
+  const navItems = [
+    { label: 'Home', path: '/' },
+    { label: 'Browse', path: '/browse' },
+    { label: 'Birthdate Numbers', path: '/birthdate-numbers' },
+    { label: 'Vehicle Numbers', path: '/vehicle-numbers' },
+    { label: 'Numerology', path: '/numerology' },
+  ];
+  
+  // Handle scroll
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
+      if (window.scrollY > 10) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
     };
     
     window.addEventListener('scroll', handleScroll);
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
   
-  // Close mobile menu on route change
+  // Close menu when location changes
   useEffect(() => {
-    setIsMobileMenuOpen(false);
-  }, [location.pathname]);
-  
-  const navLinks = [
-    { name: 'Home', path: '/', icon: <Search className="mr-2 h-4 w-4" /> },
-    { name: 'Browse', path: '/browse', icon: <Phone className="mr-2 h-4 w-4" /> },
-    { name: 'Birthdate', path: '/birthdate-numbers', icon: <Calendar className="mr-2 h-4 w-4" /> },
-    { name: 'Vehicle', path: '/vehicle-numbers', icon: <Car className="mr-2 h-4 w-4" /> },
-    { name: 'Numerology', path: '/numerology', icon: <Calculator className="mr-2 h-4 w-4" /> },
-  ];
-  
-  const isActive = (path: string) => location.pathname === path;
+    setIsMenuOpen(false);
+  }, [location]);
   
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-200 ${
-        isScrolled ? 'bg-white shadow-md py-2' : 'bg-white/90 backdrop-blur-sm py-3'
-      }`}
+    <header 
+      className={cn(
+        "fixed top-0 left-0 w-full z-50 transition-all duration-300",
+        scrolled ? "bg-white shadow-md" : "bg-white/80 backdrop-blur-md"
+      )}
     >
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center">
-            <span className="font-bold text-xl text-primary">NumberShop</span>
+          <Link 
+            to="/" 
+            className="font-bold text-xl text-primary flex items-center"
+          >
+            NumberHub
           </Link>
           
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-1">
-            {navLinks.map((link) => (
-              <Link key={link.path} to={link.path}>
-                <Button
-                  variant={isActive(link.path) ? "default" : "ghost"}
-                  size="sm"
-                  className={`${
-                    isActive(link.path) ? 'bg-primary/10 text-primary hover:bg-primary/20' : ''
-                  }`}
-                >
-                  {link.icon}
-                  {link.name}
-                </Button>
+          <nav className="hidden md:flex space-x-1">
+            {navItems.map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={cn(
+                  "px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                  location.pathname === item.path
+                    ? "text-primary"
+                    : "text-gray-600 hover:text-primary hover:bg-gray-100"
+                )}
+              >
+                {item.label}
               </Link>
             ))}
           </nav>
           
-          {/* Cart Button & Mobile Menu Toggle */}
-          <div className="flex items-center space-x-2">
+          {/* Actions */}
+          <div className="flex items-center space-x-1">
+            <Link to="/accounts">
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Account"
+                className="relative"
+              >
+                <User size={20} />
+                {wishlistCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs w-4 h-4 flex items-center justify-center">
+                    {wishlistCount}
+                  </span>
+                )}
+              </Button>
+            </Link>
+            
             <Button
-              variant="outline"
+              variant="ghost"
               size="icon"
-              className="relative"
+              aria-label="Cart"
               onClick={onCartClick}
+              className="relative"
             >
-              <ShoppingCart className="h-5 w-5" />
-              {items.length > 0 && (
-                <span className="absolute -top-2 -right-2 bg-primary text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                  {items.length}
+              <ShoppingCart size={20} />
+              {itemCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-primary text-white rounded-full text-xs w-4 h-4 flex items-center justify-center">
+                  {itemCount}
                 </span>
               )}
             </Button>
@@ -97,46 +121,56 @@ const Navbar: React.FC<NavbarProps> = ({ onCartClick }) => {
             <Button
               variant="ghost"
               size="icon"
+              aria-label={isMenuOpen ? "Close menu" : "Open menu"}
               className="md:hidden"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
-              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </Button>
           </div>
         </div>
       </div>
       
-      {/* Mobile Navigation Menu */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.2 }}
-            className="md:hidden bg-white border-t"
-          >
-            <div className="container mx-auto px-4 py-3">
-              <nav className="flex flex-col space-y-2">
-                {navLinks.map((link) => (
-                  <Link key={link.path} to={link.path}>
-                    <Button
-                      variant={isActive(link.path) ? "default" : "ghost"}
-                      size="sm"
-                      className={`w-full justify-start ${
-                        isActive(link.path) ? 'bg-primary/10 text-primary hover:bg-primary/20' : ''
-                      }`}
-                    >
-                      {link.icon}
-                      {link.name}
-                    </Button>
-                  </Link>
-                ))}
-              </nav>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Mobile Menu */}
+      {isMenuOpen && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          exit={{ opacity: 0, height: 0 }}
+          transition={{ duration: 0.3 }}
+          className="md:hidden bg-white border-t"
+        >
+          <div className="container mx-auto px-4 py-3">
+            <nav className="flex flex-col space-y-1">
+              {navItems.map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={cn(
+                    "px-3 py-2 rounded-md text-base font-medium transition-colors",
+                    location.pathname === item.path
+                      ? "bg-primary/10 text-primary"
+                      : "text-gray-600 hover:text-primary hover:bg-gray-100"
+                  )}
+                >
+                  {item.label}
+                </Link>
+              ))}
+              <Link
+                to="/accounts"
+                className={cn(
+                  "px-3 py-2 rounded-md text-base font-medium transition-colors",
+                  location.pathname === "/accounts"
+                    ? "bg-primary/10 text-primary"
+                    : "text-gray-600 hover:text-primary hover:bg-gray-100"
+                )}
+              >
+                My Account
+              </Link>
+            </nav>
+          </div>
+        </motion.div>
+      )}
     </header>
   );
 };
