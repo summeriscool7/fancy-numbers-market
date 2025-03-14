@@ -1,3 +1,6 @@
+let areNumbersCached: boolean = false;
+let cachedNumbers: Record<string, any> = {};
+
 
 // Define pattern categories
 export const PATTERN_CATEGORIES = {
@@ -196,53 +199,34 @@ export const calculateNumerologicalValue = (phoneNumber: string): number => {
   return sum;
 };
 
-// Format number for display
-export const formatPhoneNumber = (number: string): string => {
-  const cleaned = number.replace(/\D/g, '');
-  const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
-  
-  if (match) {
-    return `${match[1]}-${match[2]}-${match[3]}`;
-  }
-  
-  return number;
-};
 
 // Generate a list of mock phone numbers
 export const generateMockNumbers = (count = 50): any[] => {
+  if (areNumbersCached) return cachedNumbers;
+  console.log('Numbers are not cached so checking again')
+  const numbersList = __APP_CONFIG__.list;
+
   const carriers = ['VI', 'AIRTEL', 'JIO'];
   const numbers = [];
-  
-  for (let i = 0; i < count; i++) {
-    // Generate random phone number
-    let number = '';
-    for (let j = 0; j < 10; j++) {
-      number += Math.floor(Math.random() * 10);
-    }
+
+  for (let i = 0; i < numbersList.length; i++) {
+    const number = numbersList[i].number;
+    const price = numbersList[i].price;
     
-    // Add some pattern to some numbers
-    if (i % 10 === 0) { // Every 10th number is sequential
-      number = '1234' + number.substring(4);
-    } else if (i % 5 === 0) { // Every 5th number has repeating digits
-      number = number.substring(0, 6) + '8888';
-    } else if (i % 7 === 0) { // Every 7th number is a palindrome
-      const firstHalf = number.substring(0, 5);
-      number = firstHalf + firstHalf.split('').reverse().join('');
-    }
-    
-    const digitSum = number.split('').reduce((sum, digit) => sum + parseInt(digit), 0);
+ 
+    const digitSum = String(number).split('').reduce((sum, digit) => sum + parseInt(digit), 0);
     let singleDigitSum = digitSum;
     while (singleDigitSum >= 10) {
       singleDigitSum = singleDigitSum.toString().split('').reduce((sum, digit) => sum + parseInt(digit), 0);
     }
     
     // Determine price based on patterns (more patterns = higher price)
-    const patterns = identifyPatterns(number);
-    const price = 100 + (patterns.length * 250) + Math.floor(Math.random() * 500);
+    
+    const patterns = identifyPatterns(String(number));
     
     numbers.push({
       id: `num-${i + 1}`,
-      number: number,
+      number: String(number),
       price,
       carrier: carriers[Math.floor(Math.random() * carriers.length)],
       specialPattern: patterns,
@@ -251,5 +235,7 @@ export const generateMockNumbers = (count = 50): any[] => {
     });
   }
   
+  cachedNumbers = numbers;
+  areNumbersCached = true;
   return numbers;
 };

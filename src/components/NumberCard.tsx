@@ -39,7 +39,7 @@ const NumberCard: React.FC<NumberCardProps> = ({ number, index = 0 }) => {
   }).format(number.price);
   
   // Format number without hyphens
-  const formattedNumber = number.number.replace(/-/g, '');
+  const formattedNumber = number.number;
   
   // Animation variants
   const cardVariants = {
