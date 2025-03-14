@@ -73,7 +73,7 @@ const Signup = () => {
                       <FormLabel>Name</FormLabel>
                       <FormControl>
                         <Input 
-                          placeholder="John Doe" 
+                          placeholder="First Last" 
                           {...field} 
                           disabled={isLoading}
                         />

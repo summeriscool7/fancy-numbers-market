@@ -18,6 +18,7 @@ import QuickPatterns from "./pages/QuickPatterns";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
+import Checkout from "./pages/Checkout";
 import AuthCheck from "./components/accounts/AuthCheck";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ const App = () => (
                   <Route path="/login" element={<Login />} />
                   <Route path="/signup" element={<Signup />} />
                   <Route path="/accounts" element={<AuthCheck><Accounts /></AuthCheck>} />
+                  <Route path="/checkout" element={<Checkout />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>

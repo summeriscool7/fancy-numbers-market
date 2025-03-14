@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { X, ShoppingCart, Trash2 } from 'lucide-react';
 import CartItem from '@/components/CartItem';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 interface CartProps {
   isOpen: boolean;
@@ -14,6 +15,7 @@ interface CartProps {
 const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
   const { items, clearCart, totalPrice } = useCart();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const navigate = useNavigate();
   
   // Handle escape key to close cart
   useEffect(() => {
@@ -40,22 +42,33 @@ const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
     };
   }, [isOpen]);
   
+  // const handleCheckout = () => {
+  //   setIsCheckingOut(true);
+    
+  //   // Simulate checkout process
+  //   setTimeout(() => {
+  //     toast.success('Your order has been placed successfully!');
+  //     clearCart();
+  //     setIsCheckingOut(false);
+  //     onClose();
+  //   }, 1500);
+  // };
+
   const handleCheckout = () => {
     setIsCheckingOut(true);
     
-    // Simulate checkout process
+    // Small delay for better UX
     setTimeout(() => {
-      toast.success('Your order has been placed successfully!');
-      clearCart();
-      setIsCheckingOut(false);
       onClose();
-    }, 1500);
+      navigate('/checkout');
+      setIsCheckingOut(false);
+    }, 300);
   };
   
   // Format total price
-  const formattedTotalPrice = new Intl.NumberFormat('en-US', {
+  const formattedTotalPrice = new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'INR',
   }).format(totalPrice);
   
   return (
