@@ -41,12 +41,12 @@ const Numerology = () => {
       // Filter numbers based on numerology criteria
       const filteredNumbers = allNumbers.filter(numberData => {
         // Digital sum filter
-        if (digitSum && numberData.digitSum !== parseInt(digitSum)) {
+        if (digitSum && digitSum !== "any" && numberData.digitSum !== parseInt(digitSum)) {
           return false;
         }
         
         // Single digit sum filter
-        if (singleDigitSum && numberData.singleDigitSum !== parseInt(singleDigitSum)) {
+        if (singleDigitSum && singleDigitSum !== "any" && numberData.singleDigitSum !== parseInt(singleDigitSum)) {
           return false;
         }
         
