@@ -71,7 +71,7 @@ const Navbar: React.FC<NavbarProps> = ({ onCartClick }) => {
             to="/" 
             className="font-bold text-xl text-primary flex items-center"
           >
-            NumberHub
+            NumbersKart
           </Link>
           
           {/* Desktop Navigation */}
