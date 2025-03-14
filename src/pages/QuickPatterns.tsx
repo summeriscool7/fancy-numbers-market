@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
-import { PatternChip } from '@/components/PatternChip';
+// import { PatternChip } from '@/components/PatternChip';
+import PatternChip from "@/components/PatternChip"
 import { Check, Copy, Search } from 'lucide-react';
 
 const patterns = [
