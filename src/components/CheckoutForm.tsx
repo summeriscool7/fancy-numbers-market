@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { CheckCircle2, ArrowLeft, ArrowRight, Send } from 'lucide-react';
+import { CheckCircle2, ArrowLeft, ArrowRight, Send, Package } from 'lucide-react';
 import ProgressIndicator from '@/components/ProgressIndicator.tsx';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -101,20 +101,58 @@ const CheckoutForm: React.FC = () => {
     }
   };
   
-  const handleWhatsAppRedirect = () => {
+//   const handleWhatsAppRedirect = () => {
+//     if (validateStep()) {
+//       setIsSubmitting(true);
+      
+//       // Format cart items for WhatsApp message
+//       const itemsText = items.map(item => 
+//         `- ${item.number} (${new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.price)})`
+//       ).join('\n');
+      
+//       const message = `
+// Hello! I'd like to purchase the following numbers:
+// ${itemsText}
+
+// Total: ${new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(totalPrice)}
+
+// My details:
+// Name: ${userDetails.name}
+// Email: ${userDetails.email}
+// Phone: ${userDetails.phone}
+// Address: ${userDetails.address}, ${userDetails.city}, ${userDetails.state} ${userDetails.zipCode}
+// ${userDetails.gstNumber ? `GST Number: ${userDetails.gstNumber}` : ''}
+//       `.trim();
+
+//       // Encode the message for WhatsApp
+//       const encodedMessage = encodeURIComponent(message);
+//       const whatsappLink = `https://wa.me/+917070707271?text=${encodedMessage}`;
+      
+//       // Simulate a small delay for better UX
+//       setTimeout(() => {
+//         window.open(whatsappLink, '_blank');
+//         clearCart();
+//         toast.success('Your order details have been sent to WhatsApp!');
+//         setIsSubmitting(false);
+//         navigate('/');
+//       }, 1000);
+//     }
+//   };
+
+  const handlePlaceOrder = () => {
     if (validateStep()) {
       setIsSubmitting(true);
       
       // Format cart items for WhatsApp message
       const itemsText = items.map(item => 
-        `- ${item.number} (${new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.price)})`
+        `- ${item.number} (${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(item.price)})`
       ).join('\n');
       
       const message = `
 Hello! I'd like to purchase the following numbers:
 ${itemsText}
 
-Total: ${new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(totalPrice)}
+Total: ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(totalPrice)}
 
 My details:
 Name: ${userDetails.name}
@@ -128,13 +166,23 @@ ${userDetails.gstNumber ? `GST Number: ${userDetails.gstNumber}` : ''}
       const encodedMessage = encodeURIComponent(message);
       const whatsappLink = `https://wa.me/+917070707271?text=${encodedMessage}`;
       
+      // Open WhatsApp in a new tab
+      window.open(whatsappLink, '_blank');
+      
+      // Store order details in local storage for the confirmation page
+      localStorage.setItem('lastOrder', JSON.stringify({
+        items,
+        totalPrice,
+        userDetails,
+        orderDate: new Date().toISOString(),
+        orderNumber: 'ORD-' + Math.floor(100000 + Math.random() * 900000)
+      }));
+      
       // Simulate a small delay for better UX
       setTimeout(() => {
-        window.open(whatsappLink, '_blank');
         clearCart();
-        toast.success('Your order details have been sent to WhatsApp!');
         setIsSubmitting(false);
-        navigate('/');
+        navigate('/order-confirmation');
       }, 1000);
     }
   };
@@ -406,25 +454,17 @@ ${userDetails.gstNumber ? `GST Number: ${userDetails.gstNumber}` : ''}
             <ArrowRight size={16} className="ml-2" />
           </Button>
         ) : (
-          <>
+          
           <Button 
-            onClick={handleWhatsAppRedirect} 
+            onClick={handlePlaceOrder} 
             disabled={isSubmitting}
-            className="bg-green-600 hover:bg-green-700 px-6"
+            className="bg-primary hover:bg-primary/90 px-6"
           >
-            {isSubmitting ? 'Processing...' : 'Continue to WhatsApp'}
-            <Send size={16} className="ml-2" />
+            {isSubmitting ? 'Processing...' : 'Place Order'}
+            <Package size={16} className="ml-2" />
           </Button>
 
-          <Button 
-          onClick={returnHome} 
-          disabled={isSubmitting}
-          className="bg-blue-600 hover:bg-green-700 px-6"
-          >
-          {isSubmitting ? 'Processing...' : 'Return Home'}
-          <Send size={16} className="ml-2" />
-          </Button>
-          </>
+          
         )}
       </div>
     </div>
