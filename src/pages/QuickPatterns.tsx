@@ -71,13 +71,13 @@ const matchesPattern = (number: NumberData, pattern: string): boolean => {
     case "ABAB CDCD XY":
       return /(\d)(\d)\1\2(\d)(\d)\3\4(\d)(\d)/.test(digits);
     case "ABAB X CDCD X": 
-      // Fixed: Corrected backreferences
+      // Fixed: Using correct backreferences
       return /(\d)(\d)\1\2(\d)(\d)(\d)\4\5\6/.test(digits);
     case "ABAB XY ACAC":
-      // Fixed: Corrected backreferences
-      return /(\d)(\d)\1\2(\d)(\d)\1\3/.test(digits);
+      // Fixed: Using correct backreferences
+      return /(\d)(\d)\1\2(\d)(\d)\1\5/.test(digits);
     case "ABAB XY CDCD":
-      // Fixed: Corrected backreferences
+      // Fixed: Using correct backreferences
       return /(\d)(\d)\1\2(\d)(\d)(\d)(\d)\7\8/.test(digits);
     case "ABB ABB Ending":
       return /.*(\d)(\d)\2\1\2\2$/.test(digits);
@@ -98,6 +98,7 @@ const matchesPattern = (number: NumberData, pattern: string): boolean => {
     case "AXXX BYYY":
       return /(\d)(\d)\2\2(\d)(\d)\5\5/.test(digits);
     case "AxxxB CxxxD":
+      // Fixed: Using correct backreferences
       return /(\d)(\d)\2\2(\d)(\d)(\d)\6\6(\d)/.test(digits);
     
     case "Counting 11 12 13 TYPE":

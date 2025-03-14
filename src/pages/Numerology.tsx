@@ -1,182 +1,195 @@
 
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import MainLayout from '@/layouts/MainLayout';
-import NumberCard from '@/components/NumberCard';
-import EmptyState from '@/components/EmptyState';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { CircleDashed } from 'lucide-react';
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import React, { useState, useEffect } from 'react';
+import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 import { generateMockNumbers } from '@/utils/numberPatterns';
-import type { NumberData } from '@/utils/filterUtils';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useForm } from 'react-hook-form';
+import { motion } from 'framer-motion';
+import NumberCard from '@/components/NumberCard';
+import MainLayout from '@/layouts/MainLayout';
+import { NumberData } from '@/utils/filterUtils';
 
 const Numerology = () => {
-  const [digitSum, setDigitSum] = useState<string>('');
-  const [singleDigitSum, setSingleDigitSum] = useState<string>('');
-  const [numbers, setNumbers] = useState<NumberData[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [searched, setSearched] = useState(false);
-  const isMobile = useIsMobile();
+  const [allNumbers] = useState<NumberData[]>(() => generateMockNumbers(100));
+  const [filteredNumbers, setFilteredNumbers] = useState<NumberData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   
-  const handleSearch = () => {
-    if (!digitSum && !singleDigitSum) return;
-    
+  const digitSumOptions = ['any', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+  
+  const form = useForm({
+    defaultValues: {
+      digitSum: 'any',
+      singleDigitSum: 'any',
+    },
+  });
+  
+  const onSubmit = (data: { digitSum: string; singleDigitSum: string }) => {
     setIsLoading(true);
-    setSearched(true);
     
-    // Simulate API call
     setTimeout(() => {
-      // Generate mock numbers
-      const allNumbers = generateMockNumbers(100);
-      
       // Filter numbers based on numerology criteria
       const filteredNumbers = allNumbers.filter(numberData => {
         // Digital sum filter
-        if (digitSum && digitSum !== "any" && numberData.digitSum !== parseInt(digitSum)) {
+        if (data.digitSum && data.digitSum !== "any" && numberData.digitSum !== parseInt(data.digitSum)) {
           return false;
         }
         
         // Single digit sum filter
-        if (singleDigitSum && singleDigitSum !== "any" && numberData.singleDigitSum !== parseInt(singleDigitSum)) {
+        if (data.singleDigitSum && data.singleDigitSum !== "any" && numberData.singleDigitSum !== parseInt(data.singleDigitSum)) {
           return false;
         }
         
         return true;
       });
       
-      setNumbers(filteredNumbers);
+      setFilteredNumbers(filteredNumbers);
       setIsLoading(false);
-    }, 800);
+    }, 600);
+  };
+  
+  useEffect(() => {
+    // Initial load of all numbers
+    setFilteredNumbers(allNumbers);
+    setIsLoading(false);
+    
+    // Set initial form values
+    form.reset({
+      digitSum: 'any',
+      singleDigitSum: 'any',
+    });
+  }, [allNumbers, form]);
+  
+  const handleFilterChange = () => {
+    const values = form.getValues();
+    onSubmit(values);
   };
   
   return (
     <MainLayout>
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <motion.h1
-            initial={{ opacity: 0, y: -20 }}
+      <div className="pt-8 pb-16">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="text-3xl font-bold mb-2 text-gray-900 dark:text-white"
+            className="max-w-5xl mx-auto"
           >
-            Numerology Numbers
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-gray-600 dark:text-gray-300"
-          >
-            Find premium numbers that align with your numerological preferences
-          </motion.p>
-        </div>
-        
-        <div className="max-w-3xl mx-auto mb-10">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-            <div className="mb-6">
-              <h3 className="font-medium text-lg mb-2 text-gray-900 dark:text-white">Numerology Preferences</h3>
-              <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">
-                Select your preferred numerology values to find matching numbers
+            <div className="mb-8">
+              <h1 className="text-3xl md:text-4xl font-bold mb-4">Numerology Numbers</h1>
+              <p className="text-gray-600 dark:text-gray-300">
+                Find mobile numbers based on numerology principles. Select criteria that match your lucky numbers.
               </p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <Label htmlFor="digit-sum" className="text-gray-900 dark:text-white">Digit Sum</Label>
-                  <Select 
-                    value={digitSum} 
-                    onValueChange={setDigitSum}
-                  >
-                    <SelectTrigger className="w-full mt-1 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
-                      <SelectValue placeholder="Select digit sum" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="any">Any</SelectItem>
-                      {Array.from({ length: 50 }, (_, i) => i + 1).map((num) => (
-                        <SelectItem key={num} value={num.toString()}>
-                          {num}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    The sum of all digits in the number
-                  </p>
-                </div>
-                
-                <div>
-                  <Label htmlFor="single-digit" className="text-gray-900 dark:text-white">Single Digit Sum</Label>
-                  <Select 
-                    value={singleDigitSum} 
-                    onValueChange={setSingleDigitSum}
-                  >
-                    <SelectTrigger className="w-full mt-1 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
-                      <SelectValue placeholder="Select single digit" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="any">Any</SelectItem>
-                      {Array.from({ length: 9 }, (_, i) => i + 1).map((num) => (
-                        <SelectItem key={num} value={num.toString()}>
-                          {num}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    The final single digit after summing all digits
-                  </p>
-                </div>
-              </div>
-              
-              <Button 
-                onClick={handleSearch} 
-                disabled={!digitSum && !singleDigitSum}
-                className="w-full mt-6"
-              >
-                Find Numbers
-              </Button>
+              <Separator className="my-6" />
             </div>
-          </div>
-        </div>
-        
-        {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {Array.from({ length: 8 }).map((_, index) => (
-              <div key={index} className="bg-gray-100 dark:bg-gray-800 rounded-xl h-64 animate-pulse"></div>
-            ))}
-          </div>
-        ) : numbers.length > 0 ? (
-          <div>
-            <p className="mb-4 text-gray-500 dark:text-gray-400">
-              Showing {numbers.length} numbers matching your numerology preferences
-            </p>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {numbers.map((number, index) => (
-                <NumberCard key={number.id} number={number} index={index} />
-              ))}
+            <Card className="mb-8">
+              <CardContent className="pt-6">
+                <Form {...form}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="digitSum"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Digit Sum (Total)</FormLabel>
+                          <Select
+                            value={field.value}
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                              handleFilterChange();
+                            }}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select Digit Sum" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {digitSumOptions.map((option) => (
+                                <SelectItem key={option} value={option}>
+                                  {option === 'any' ? 'Any Sum' : option}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="singleDigitSum"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Single Digit Sum (Reduced)</FormLabel>
+                          <Select
+                            value={field.value}
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                              handleFilterChange();
+                            }}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select Single Digit Sum" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {digitSumOptions.map((option) => (
+                                <SelectItem key={option} value={option}>
+                                  {option === 'any' ? 'Any Sum' : option}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </Form>
+              </CardContent>
+            </Card>
+            
+            <div className="mb-6">
+              <h2 className="text-2xl font-semibold mb-2">
+                Results <span className="text-gray-500 text-lg">({filteredNumbers.length})</span>
+              </h2>
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
+                Numbers that match your numerology criteria.
+              </p>
             </div>
-          </div>
-        ) : searched ? (
-          <EmptyState 
-            type="search"
-            title="No matching numbers found"
-            description="We couldn't find any numbers that match your numerology preferences. Try different values."
-            icon={<CircleDashed size={48} className="text-gray-300 dark:text-gray-600" />}
-          />
-        ) : (
-          <div className="text-center text-gray-500 dark:text-gray-400 py-10">
-            <p>Select your numerology preferences to find matching numbers</p>
-          </div>
-        )}
+            
+            {isLoading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {Array.from({ length: 8 }).map((_, index) => (
+                  <div key={index} className="bg-gray-100 dark:bg-gray-800 rounded-xl h-64 animate-pulse"></div>
+                ))}
+              </div>
+            ) : (
+              <>
+                {filteredNumbers.length > 0 ? (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5 }}
+                    className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+                  >
+                    {filteredNumbers.map((number, index) => (
+                      <NumberCard key={number.id} number={number} index={index} />
+                    ))}
+                  </motion.div>
+                ) : (
+                  <div className="text-center py-16">
+                    <h3 className="text-xl font-medium mb-2">No numbers found</h3>
+                    <p className="text-gray-500 dark:text-gray-400">Try changing your filter criteria</p>
+                  </div>
+                )}
+              </>
+            )}
+          </motion.div>
+        </div>
       </div>
     </MainLayout>
   );
