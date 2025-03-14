@@ -34,7 +34,7 @@ const NumberSearch: React.FC<NumberSearchProps> = ({ className }) => {
     e.preventDefault();
     if (searchQuery) {
       // We'll navigate to the browse page with the search query as a parameter
-      navigate(`/browse?q=${encodeURIComponent(searchQuery)}`);
+      navigate(`/browse`);
     }
   };
 
@@ -141,7 +141,7 @@ const NumberSearch: React.FC<NumberSearchProps> = ({ className }) => {
                       className={`text-xs rounded-full border ${suggestion.color} transition-all duration-300 shadow-sm hover:shadow`}
                       onClick={() => {
                         setSearchQuery(suggestion.text);
-                        navigate(`/browse?q=${encodeURIComponent(suggestion.text)}`);
+                        navigate(`/browse`);
                       }}
                     >
                       {suggestion.text}
