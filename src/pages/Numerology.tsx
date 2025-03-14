@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { generateMockNumbers } from '@/utils/numberPatterns';
-import { NumberData } from '@/utils/filterUtils';
+import type { NumberData } from '@/utils/filterUtils';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const Numerology = () => {
@@ -66,7 +66,7 @@ const Numerology = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="text-3xl font-bold mb-2"
+            className="text-3xl font-bold mb-2 text-gray-900 dark:text-white"
           >
             Numerology Numbers
           </motion.h1>
@@ -74,28 +74,28 @@ const Numerology = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-gray-600"
+            className="text-gray-600 dark:text-gray-300"
           >
             Find premium numbers that align with your numerological preferences
           </motion.p>
         </div>
         
         <div className="max-w-3xl mx-auto mb-10">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
             <div className="mb-6">
-              <h3 className="font-medium text-lg mb-2">Numerology Preferences</h3>
-              <p className="text-gray-500 text-sm mb-4">
+              <h3 className="font-medium text-lg mb-2 text-gray-900 dark:text-white">Numerology Preferences</h3>
+              <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">
                 Select your preferred numerology values to find matching numbers
               </p>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <Label htmlFor="digit-sum">Digit Sum</Label>
+                  <Label htmlFor="digit-sum" className="text-gray-900 dark:text-white">Digit Sum</Label>
                   <Select 
                     value={digitSum} 
                     onValueChange={setDigitSum}
                   >
-                    <SelectTrigger className="w-full mt-1">
+                    <SelectTrigger className="w-full mt-1 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
                       <SelectValue placeholder="Select digit sum" />
                     </SelectTrigger>
                     <SelectContent>
@@ -107,18 +107,18 @@ const Numerology = () => {
                       ))}
                     </SelectContent>
                   </Select>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                     The sum of all digits in the number
                   </p>
                 </div>
                 
                 <div>
-                  <Label htmlFor="single-digit">Single Digit Sum</Label>
+                  <Label htmlFor="single-digit" className="text-gray-900 dark:text-white">Single Digit Sum</Label>
                   <Select 
                     value={singleDigitSum} 
                     onValueChange={setSingleDigitSum}
                   >
-                    <SelectTrigger className="w-full mt-1">
+                    <SelectTrigger className="w-full mt-1 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
                       <SelectValue placeholder="Select single digit" />
                     </SelectTrigger>
                     <SelectContent>
@@ -130,7 +130,7 @@ const Numerology = () => {
                       ))}
                     </SelectContent>
                   </Select>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                     The final single digit after summing all digits
                   </p>
                 </div>
@@ -150,12 +150,12 @@ const Numerology = () => {
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {Array.from({ length: 8 }).map((_, index) => (
-              <div key={index} className="bg-gray-100 rounded-xl h-64 animate-pulse"></div>
+              <div key={index} className="bg-gray-100 dark:bg-gray-800 rounded-xl h-64 animate-pulse"></div>
             ))}
           </div>
         ) : numbers.length > 0 ? (
           <div>
-            <p className="mb-4 text-gray-500">
+            <p className="mb-4 text-gray-500 dark:text-gray-400">
               Showing {numbers.length} numbers matching your numerology preferences
             </p>
             
@@ -170,10 +170,10 @@ const Numerology = () => {
             type="search"
             title="No matching numbers found"
             description="We couldn't find any numbers that match your numerology preferences. Try different values."
-            icon={<CircleDashed size={48} className="text-gray-300" />}
+            icon={<CircleDashed size={48} className="text-gray-300 dark:text-gray-600" />}
           />
         ) : (
-          <div className="text-center text-gray-500 py-10">
+          <div className="text-center text-gray-500 dark:text-gray-400 py-10">
             <p>Select your numerology preferences to find matching numbers</p>
           </div>
         )}
