@@ -483,18 +483,19 @@ const FilterSection: React.FC<FilterSectionProps> = ({
             </AccordionContent>
           </AccordionItem>
         </Accordion>
+
+        <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+          <Button 
+            variant="outline" 
+            className="w-full dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
+            onClick={handleReset}
+          >
+            <RefreshCw size={16} className="mr-2" />
+            Reset Filters
+          </Button>
+        </div>
       </ScrollArea>
       
-      <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-        <Button 
-          variant="outline" 
-          className="w-full dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
-          onClick={handleReset}
-        >
-          <RefreshCw size={16} className="mr-2" />
-          Reset Filters
-        </Button>
-      </div>
     </motion.div>
   );
 };
