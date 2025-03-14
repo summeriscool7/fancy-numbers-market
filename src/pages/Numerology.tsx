@@ -99,7 +99,7 @@ const Numerology = () => {
                       <SelectValue placeholder="Select digit sum" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Any</SelectItem>
+                      <SelectItem value="any">Any</SelectItem>
                       {Array.from({ length: 50 }, (_, i) => i + 1).map((num) => (
                         <SelectItem key={num} value={num.toString()}>
                           {num}
@@ -122,7 +122,7 @@ const Numerology = () => {
                       <SelectValue placeholder="Select single digit" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Any</SelectItem>
+                      <SelectItem value="any">Any</SelectItem>
                       {Array.from({ length: 9 }, (_, i) => i + 1).map((num) => (
                         <SelectItem key={num} value={num.toString()}>
                           {num}

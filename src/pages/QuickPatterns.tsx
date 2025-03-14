@@ -24,14 +24,10 @@ const patterns = [
   "Years Numbers", "0000 Number", "AB00 CD01", "787 Numbers"
 ];
 
-// Function to check if a number matches a specific pattern
-// This is a placeholder - you would implement the actual pattern matching logic
 const matchesPattern = (number: NumberData, pattern: string): boolean => {
-  // Simple matching by number value format
   const digits = number.number.toString();
   
   switch(pattern) {
-    // Basic number patterns
     case "000 Number":
       return /\d*000\d*/.test(digits);
     case "00AB 00CD":
@@ -57,7 +53,6 @@ const matchesPattern = (number: NumberData, pattern: string): boolean => {
     case "916 916 Gold":
       return /.*916.*916.*/.test(digits);
       
-    // Repeating pattern structures
     case "XY XY":
       return /(\d{2})\1/.test(digits);
     case "AAB AAB XY XY":
@@ -77,9 +72,9 @@ const matchesPattern = (number: NumberData, pattern: string): boolean => {
     case "ABAB X CDCD X":
       return /(\d)(\d)\1\2(\d)(\d)(\d)\3\4\5/.test(digits);
     case "ABAB XY ACAC":
-      return /(\d)(\d)\1\2(\d)(\d)\1(\d)\1\3/.test(digits);
+      return /(\d)(\d)\1\2(\d)(\d)\1\3\1\3/.test(digits);
     case "ABAB XY CDCD":
-      return /(\d)(\d)\1\2(\d)(\d)(\d)(\d)\3\4/.test(digits);
+      return /(\d)(\d)\1\2(\d)(\d)(\d)(\d)\7\8/.test(digits);
     case "ABB ABB Ending":
       return /.*(\d)(\d)\2\1\2\2$/.test(digits);
     case "ABB ABB XYXY":
@@ -101,7 +96,6 @@ const matchesPattern = (number: NumberData, pattern: string): boolean => {
     case "AxxxB CxxxD":
       return /(\d)(\d)\2\2(\d)(\d)(\d)\5\5(\d)/.test(digits);
     
-    // Special sequence patterns
     case "Counting 11 12 13 TYPE":
       return /(0?1\d){3,}/.test(digits) || /(1[0-2]){3,}/.test(digits);
     case "Counting Numbers":
@@ -113,7 +107,6 @@ const matchesPattern = (number: NumberData, pattern: string): boolean => {
     case "Doubling Number":
       return /(\d)(\1|\2){5,}/.test(digits);
       
-    // Position-based patterns  
     case "ENDING XXX":
       return /(\d)\1\1$/.test(digits);
     case "Ending XXYYZZ":
@@ -135,7 +128,6 @@ const matchesPattern = (number: NumberData, pattern: string): boolean => {
     case "Xy Xy Xy Ending":
       return /(?:(\d)(\d)){3}$/.test(digits);
       
-    // Middle-focused patterns
     case "Middle Hexa":
       return /\d{2}(\d)\1\1\1\1\1\d{2}/.test(digits);
     case "Middle Penta":
@@ -147,9 +139,7 @@ const matchesPattern = (number: NumberData, pattern: string): boolean => {
     case "Middle Xy Xy Xy":
       return /\d*(?:(\d)(\d)){3}\d*/.test(digits);
 
-    // Complex pattern types
     case "Fancy Number":
-      // Numbers with repeated digits or easy-to-remember patterns
       return /(\d)\1{2,}/.test(digits) || /(\d{2})\1+/.test(digits) || /(?:0123|1234|2345|3456|4567|5678|6789|9876|8765|7654|6543|5432|4321|3210)/.test(digits);
     case "Hexa Ending":
       return /(\d)\1\1\1\1\1$/.test(digits);
@@ -158,23 +148,19 @@ const matchesPattern = (number: NumberData, pattern: string): boolean => {
     case "Penta Ending":
       return /(\d)\1\1\1\1$/.test(digits);
     case "Semi Mirror Number":
-      // At least half the number is a mirror
       const halfLength = Math.floor(digits.length / 2);
       const firstHalf = digits.substring(0, halfLength);
       const secondHalf = digits.substring(digits.length - halfLength).split('').reverse().join('');
       return firstHalf === secondHalf;
     case "Special Digit Numbers":
-      // Numbers containing significant digits like 786, 108, 420, 143
       return /786|108|420|143|999|888|777|666|555|444|333|222|111|000/.test(digits);
     case "Tetra Number":
       return /(\d)\1\1\1/.test(digits);
     case "Vvip Number":
-      // Premium looking numbers with many repeating patterns
       return /(\d)\1{3,}/.test(digits) || /(\d{2})\1{2,}/.test(digits) || /(\d{3})\1{1,}/.test(digits) || /0000|1111|2222|3333|4444|5555|6666|7777|8888|9999/.test(digits);
     case "Without 2 4 8":
       return !/[248]/.test(digits);
       
-    // Layout-based patterns  
     case "X ABCD ABCD X":
       return /(\d)(\d)(\d)(\d)(\d)\2\3\4\5\1/.test(digits);
     case "X00 X00":
@@ -188,14 +174,10 @@ const matchesPattern = (number: NumberData, pattern: string): boolean => {
     case "XY ABCD ABCD":
       return /(\d)(\d)(\d)(\d)(\d)(\d)\3\4\5\6/.test(digits);
       
-    // Year-based patterns
     case "Years Numbers":
-      // Check for years 1950-2030
       return /(19[5-9]\d|20[0-2]\d)/.test(digits);
       
-    // Default fallback
     default:
-      // If pattern not recognized, return a small percentage randomly
       return Math.random() < 0.1;
   }
 };
@@ -205,37 +187,29 @@ const QuickPatterns = () => {
   const [displayedNumbers, setDisplayedNumbers] = useState<NumberData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Generate all numbers once at component mount
   const [allNumbers] = useState<NumberData[]>(() => generateMockNumbers(200));
   
-  // Cache for filtered numbers by pattern
   const [patternCache, setPatternCache] = useState<Record<string, NumberData[]>>({});
   
-  // Filter and display numbers when pattern changes
   useEffect(() => {
     setIsLoading(true);
     
-    // Use cached results if available
     if (patternCache[selectedPattern]) {
       setDisplayedNumbers(patternCache[selectedPattern]);
       setIsLoading(false);
       return;
     }
     
-    // Simulate API delay for first-time filtering
     const timeoutId = setTimeout(() => {
-      // Filter numbers that match the selected pattern
       const filteredNumbers = allNumbers.filter(number => 
         matchesPattern(number, selectedPattern)
       );
       
-      // Update cache with filtered results
       setPatternCache(prevCache => ({
         ...prevCache,
         [selectedPattern]: filteredNumbers
       }));
       
-      // Update displayed numbers
       setDisplayedNumbers(filteredNumbers);
       setIsLoading(false);
     }, 600);
@@ -243,11 +217,9 @@ const QuickPatterns = () => {
     return () => clearTimeout(timeoutId);
   }, [selectedPattern, allNumbers]);
   
-  // Calculate pattern counts for display
   const patternCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     
-    // For patterns that are already cached, use the cached length
     Object.keys(patternCache).forEach(pattern => {
       counts[pattern] = patternCache[pattern].length;
     });
