@@ -4,11 +4,12 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, Menu, X, User, Sun, Moon } from 'lucide-react';
+import { ShoppingCart, Menu, X, User, Sun, Moon, LogIn } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTheme } from '@/context/ThemeContext';
+import { useAuth } from '@/context/AuthContext';
 
 interface NavbarProps {
   onCartClick: () => void;
@@ -22,6 +23,7 @@ const Navbar: React.FC<NavbarProps> = ({ onCartClick }) => {
   const location = useLocation();
   const isMobile = useIsMobile();
   const { theme, toggleTheme } = useTheme();
+  const { isAuthenticated, user } = useAuth();
   
   // Navigation items
   const navItems = [
@@ -126,21 +128,33 @@ const Navbar: React.FC<NavbarProps> = ({ onCartClick }) => {
               {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
             </Button>
             
-            <Link to="/accounts">
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label="Account"
-                className="relative"
-              >
-                <User size={20} />
-                {wishlistCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs w-4 h-4 flex items-center justify-center">
-                    {wishlistCount}
-                  </span>
-                )}
-              </Button>
-            </Link>
+            {isAuthenticated ? (
+              <Link to="/accounts">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Account"
+                  className="relative"
+                >
+                  <User size={20} />
+                  {wishlistCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs w-4 h-4 flex items-center justify-center">
+                      {wishlistCount}
+                    </span>
+                  )}
+                </Button>
+              </Link>
+            ) : (
+              <Link to="/login">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Login"
+                >
+                  <LogIn size={20} />
+                </Button>
+              </Link>
+            )}
             
             <Button
               variant="ghost"
@@ -196,17 +210,36 @@ const Navbar: React.FC<NavbarProps> = ({ onCartClick }) => {
                   {item.label}
                 </Link>
               ))}
-              <Link
-                to="/accounts"
-                className={cn(
-                  "px-3 py-2 rounded-md text-base font-medium transition-colors",
-                  location.pathname === "/accounts"
-                    ? "bg-primary/10 text-primary"
-                    : "text-foreground/80 hover:text-primary hover:bg-muted"
-                )}
-              >
-                My Account
-              </Link>
+
+              {isAuthenticated ? (
+                <Link
+                  to="/accounts"
+                  className={cn(
+                    "px-3 py-2 rounded-md text-base font-medium transition-colors",
+                    location.pathname === "/accounts"
+                      ? "bg-primary/10 text-primary"
+                      : "text-foreground/80 hover:text-primary hover:bg-muted"
+                  )}
+                >
+                  My Account
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    className="px-3 py-2 rounded-md text-base font-medium transition-colors text-foreground/80 hover:text-primary hover:bg-muted"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/signup"
+                    className="px-3 py-2 rounded-md text-base font-medium transition-colors text-foreground/80 hover:text-primary hover:bg-muted"
+                  >
+                    Sign Up
+                  </Link>
+                </>
+              )}
+
               <a
                 href={whatsappLink}
                 target="_blank"

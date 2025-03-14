@@ -22,7 +22,7 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     rollupOptions: {
-      // Ensure zod isn't externalized
+      // Ensure dependencies aren't externalized
       external: []
     }
   }

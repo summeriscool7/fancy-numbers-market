@@ -2,19 +2,39 @@
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import MainLayout from '@/layouts/MainLayout';
 import ProfileSection from '@/components/accounts/ProfileSection';
 import OrdersSection from '@/components/accounts/OrdersSection';
 import WishlistSection from '@/components/accounts/WishlistSection';
-import { User, Package, Heart } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { User, Package, Heart, LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Accounts = () => {
   const [activeTab, setActiveTab] = useState("profile");
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   return (
     <MainLayout>
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6">My Account</h1>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold">My Account</h1>
+          <Button 
+            variant="outline" 
+            className="flex items-center gap-2 text-destructive hover:bg-destructive/10"
+            onClick={handleLogout}
+          >
+            <LogOut size={16} />
+            <span>Logout</span>
+          </Button>
+        </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Account Navigation - Desktop */}
@@ -22,7 +42,7 @@ const Accounts = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Account</CardTitle>
-                <CardDescription>Manage your account settings</CardDescription>
+                <CardDescription>Welcome, {user?.name || user?.email}</CardDescription>
               </CardHeader>
               <CardContent className="p-0">
                 <div className="flex flex-col">
@@ -46,6 +66,13 @@ const Accounts = () => {
                   >
                     <Heart size={18} />
                     <span>Wishlist</span>
+                  </button>
+                  <button 
+                    className="flex items-center gap-2 p-4 text-left hover:bg-muted text-destructive transition-colors"
+                    onClick={handleLogout}
+                  >
+                    <LogOut size={18} />
+                    <span>Logout</span>
                   </button>
                 </div>
               </CardContent>

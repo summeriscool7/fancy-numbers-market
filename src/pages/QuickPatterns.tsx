@@ -1,308 +1,247 @@
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
 import MainLayout from '@/layouts/MainLayout';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { generateMockNumbers } from '@/utils/numberPatterns';
-import NumberCard from '@/components/NumberCard';
-import { Separator } from '@/components/ui/separator';
-import { NumberData } from '@/utils/filterUtils';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Checkbox } from '@/components/ui/checkbox';
+import { PatternChip } from '@/components/PatternChip';
+import { Check, Copy, Search } from 'lucide-react';
 
 const patterns = [
-  "000 Number", "00AB 00CD", "1008", "108 108 Numbers", "143 143 Love Number",
-  "420 420 Number", "786 Numbers", "78692 Numbers", "850000 xyxy", "916 916 Gold",
-  "AAB AAB XY XY", "AAB AAB XYXY", "AB XXX CD YYY", "AB00 CD00", "ABA ABA XYXY",
-  "ABAB CDCD XY", "ABAB X CDCD X", "ABAB XY ACAC", "ABAB XY CDCD", "ABB ABB Ending",
-  "ABB ABB XYXY", "ABC ABC XYXY", "ABC ABD XY XY", "Abcd Abcd", "ABCD ABCD XY",
-  "ABCD XY ABCD", "ABXXX CDYYY", "AXXX BYYY", "AxxxB CxxxD", "Counting 11 12 13 TYPE",
-  "Counting Numbers", "Double 786 786", "Double Jodi", "Doubling Number", "ENDING XXX",
-  "Ending XXYYZZ", "Fancy Number", "Hexa Ending", "Middle Hexa", "Middle Penta",
-  "Middle xxx yyy", "Middle xxxx", "Middle Xy Xy Xy", "Mirror Numbers", "Penta Ending",
-  "Semi Mirror Number", "Special Digit Numbers", "Starting xxxx", "Tetra Number", "Vvip Number",
-  "Without 2 4 8", "X ABCD ABCD X", "X00 X00", "X00X X00X", "XXX YYY Ending",
-  "XXX YYY Starting", "XXXX Ending", "XXYYZZ Starting", "XY ABAB CDCD", "XY ABC ABC XY",
-  "XY ABCD ABCD", "XY XY", "Xy Xy Xy Ending", "XY XY XY Starting", "XYZ XYZ Ending",
-  "Years Numbers", "0000 Number", "AB00 CD01", "787 Numbers"
+  {
+    name: "ABC",
+    description: "Consecutive numbers (e.g., 123, 456, 789)",
+    regex: /(\d)(?=\1{0})(?=(\d))(?=\2{0})(?=(\d))(?:\1\2\3){1}/,
+    example: "123, 456, 789, 987, 654, 321",
+  },
+  {
+    name: "ABCABC",
+    description: "Repeated sequence of 3 consecutive digits (e.g., 123123)",
+    regex: /(\d)(?=\1{0})(?=(\d))(?=\2{0})(?=(\d))(?:\1\2\3){2}/,
+    example: "123123, 456456, 789789",
+  },
+  {
+    name: "AA BB CC",
+    description: "3 pairs of repeated digits (e.g., 112233, 445566)",
+    regex: /(\d)\1(?=(\d))(?=\2{1})(?=(\d))(?=\3{1})(?:\2\2\3\3)/,
+    example: "112233, 223344, 334455",
+  },
+  {
+    name: "AAAA",
+    description: "4 identical digits in a row (e.g., 1111, 9999)",
+    regex: /(\d)\1{3}/,
+    example: "1111, 2222, 9999",
+  },
+  {
+    name: "AAA BBB",
+    description: "Two sets of 3 identical digits (e.g., 111222, 999888)",
+    regex: /(\d)\1{2}(\d)\2{2}/,
+    example: "111222, 333444, 555666",
+  },
+  {
+    name: "ABBA",
+    description: "Palindrome pattern (e.g., 1221, 7887)",
+    regex: /(\d)(\d)\2\1/,
+    example: "1221, 1331, 7887",
+  },
+  {
+    name: "ABAB",
+    description: "Two alternating digits repeated (e.g., 1212, 9090)",
+    regex: /(\d)(\d)\1\2/,
+    example: "1212, 3434, 9090",
+  },
+  {
+    name: "ABCD ABCD",
+    description: "Sequence of 4 digits repeated (e.g., 12341234)",
+    regex: /(\d)(?=\1{0})(?=(\d))(?=\2{0})(?=(\d))(?=\3{0})(?=(\d))(?:\1\2\3\4){2}/,
+    example: "12341234, 56785678",
+  },
+  {
+    name: "ABCD DCBA",
+    description: "Sequence followed by its reverse (e.g., 12344321)",
+    regex: /(\d)(?=\1{0})(?=(\d))(?=\2{0})(?=(\d))(?=\3{0})(?=(\d))(?:\1\2\3\4\4\3\2\1)/,
+    example: "12344321, 56788765",
+  },
+  {
+    name: "AABB",
+    description: "Two pairs of identical digits (e.g., 1122, 7788)",
+    regex: /(\d)\1(\d)\2/,
+    example: "1122, 3344, 5566",
+  },
+  {
+    name: "ABAB XY ABAB",
+    description: "Double alternating pair with separator (e.g., 1212341212)",
+    regex: /(\d)(\d)\1\2(\d)(\d)\1\2/,
+    example: "1212341212, 5656785656",
+  },
+  {
+    name: "ABAB XY CDCD",
+    description: "Two different alternating pairs (e.g., 1212345656)",
+    regex: /(\d)(\d)\1\2(\d)(\d)\3\4/,
+    example: "1212345656, 9090343434",
+  }
 ];
 
-const matchesPattern = (number: NumberData, pattern: string): boolean => {
-  const digits = number.number.toString();
-  
-  switch(pattern) {
-    case "000 Number":
-      return /\d*000\d*/.test(digits);
-    case "00AB 00CD":
-      return /00(\d)(\d)00(\d)(\d)/.test(digits);
-    case "0000 Number":
-      return /\d*0000\d*/.test(digits);
-    case "1008":
-      return digits.includes('1008');
-    case "108 108 Numbers":
-      return /.*108.*108.*/.test(digits);
-    case "143 143 Love Number":
-      return /.*143.*143.*/.test(digits);
-    case "420 420 Number":
-      return /.*420.*420.*/.test(digits);
-    case "786 Numbers":
-      return digits.includes('786');
-    case "787 Numbers":
-      return digits.includes('787');
-    case "78692 Numbers":
-      return digits.includes('78692');
-    case "850000 xyxy":
-      return /85(?:(\d)\1){2,}/.test(digits);
-    case "916 916 Gold":
-      return /.*916.*916.*/.test(digits);
-      
-    case "XY XY":
-      return /(\d{2})\1/.test(digits);
-    case "AAB AAB XY XY":
-      return /(\d)(\d)(\d)\1\2\3.*(\d)(\d)\4\5/.test(digits);
-    case "AAB AAB XYXY":
-      return /(\d)(\d)(\d)\1\2\3.*(\d)(\d)\4\5/.test(digits);
-    case "ABA ABA XYXY":
-      return /(\d)(\d)\1\1\2\1.*(\d)(\d)\3\4/.test(digits);
-    case "AB XXX CD YYY":
-      return /(\d)(\d)(\d)\3\3(\d)(\d)(\d)\6\6/.test(digits);
-    case "AB00 CD00":
-      return /(\d)(\d)00(\d)(\d)00/.test(digits);
-    case "AB00 CD01":
-      return /(\d)(\d)00(\d)(\d)01/.test(digits);
-    case "ABAB CDCD XY":
-      return /(\d)(\d)\1\2(\d)(\d)\3\4(\d)(\d)/.test(digits);
-    case "ABAB X CDCD X": 
-      // Fixed: Using correct backreferences
-      return /(\d)(\d)\1\2(\d)(\d)(\d)\4\5\6/.test(digits);
-    case "ABAB XY ACAC":
-      // Fixed: Using correct backreferences
-      return /(\d)(\d)\1\2(\d)(\d)\1\5/.test(digits);
-    case "ABAB XY CDCD":
-      // Fixed: Using correct backreferences
-      return /(\d)(\d)\1\2(\d)(\d)(\d)(\d)\7\8/.test(digits);
-    case "ABB ABB Ending":
-      return /.*(\d)(\d)\2\1\2\2$/.test(digits);
-    case "ABB ABB XYXY":
-      return /(\d)(\d)\2\1\2\2(\d)(\d)\3\4/.test(digits);
-    case "ABC ABC XYXY":
-      return /(\d)(\d)(\d)\1\2\3(\d)(\d)\4\5/.test(digits);
-    case "ABC ABD XY XY":
-      return /(\d)(\d)(\d)\1\2(\d)(\d)(\d)\6\7/.test(digits);
-    case "Abcd Abcd":
-      return /(\d{4})\1/.test(digits);
-    case "ABCD ABCD XY":
-      return /(\d)(\d)(\d)(\d)\1\2\3\4(\d)(\d)/.test(digits);
-    case "ABCD XY ABCD":
-      return /(\d)(\d)(\d)(\d)(\d)(\d)\1\2\3\4/.test(digits);
-    case "ABXXX CDYYY":
-      return /(\d)(\d)(\d)\3\3(\d)(\d)(\d)\6\6/.test(digits);
-    case "AXXX BYYY":
-      return /(\d)(\d)\2\2(\d)(\d)\5\5/.test(digits);
-    case "AxxxB CxxxD":
-      // Fixed: Using correct backreferences
-      return /(\d)(\d)\2\2(\d)(\d)(\d)\6\6(\d)/.test(digits);
-    
-    case "Counting 11 12 13 TYPE":
-      return /(0?1\d){3,}/.test(digits) || /(1[0-2]){3,}/.test(digits);
-    case "Counting Numbers":
-      return /(?:0?1(?:2(?:3(?:4(?:5(?:6(?:7(?:89?)?)?)?)?)?)?)?)|(?:9(?:8(?:7(?:6(?:5(?:4(?:3(?:21?)?)?)?)?)?)?)?)|(?:(?:12(?:34?)?)|(?:(?:23(?:45?)?)|(?:(?:34(?:56?)?)|(?:(?:45(?:67?)?)|(?:(?:56(?:78?)?)|(?:(?:67(?:89?)?)|(?:78(?:90?)?)?)?)?)?)?)?)/.test(digits);
-    case "Double 786 786":
-      return /786.*786/.test(digits);
-    case "Double Jodi":
-      return /(\d{2}).*\1/.test(digits);
-    case "Doubling Number":
-      return /(\d)(\1|\2){5,}/.test(digits);
-      
-    case "ENDING XXX":
-      return /(\d)\1\1$/.test(digits);
-    case "Ending XXYYZZ":
-      return /(\d)\1(\d)\2(\d)\3$/.test(digits);
-    case "Starting xxxx":
-      return /^(\d)\1\1\1/.test(digits);
-    case "XXXX Ending":
-      return /(\d)\1\1\1$/.test(digits);
-    case "XXYYZZ Starting":
-      return /^(\d)\1(\d)\2(\d)\3/.test(digits);
-    case "XXX YYY Ending":
-      return /(\d)\1\1(\d)\2\2$/.test(digits);
-    case "XXX YYY Starting":
-      return /^(\d)\1\1(\d)\2\2/.test(digits);
-    case "XY XY XY Starting":
-      return /^(\d)(\d)\1\2(\d)(\d)/.test(digits);
-    case "XYZ XYZ Ending":
-      return /(\d)(\d)(\d)\1\2\3$/.test(digits);
-    case "Xy Xy Xy Ending":
-      return /(?:(\d)(\d)){3}$/.test(digits);
-      
-    case "Middle Hexa":
-      return /\d{2}(\d)\1\1\1\1\1\d{2}/.test(digits);
-    case "Middle Penta":
-      return /\d{2,3}(\d)\1\1\1\1\d{2,3}/.test(digits);
-    case "Middle xxx yyy":
-      return /\d*(\d)\1\1(\d)\2\2\d*/.test(digits);
-    case "Middle xxxx":
-      return /\d*(\d)\1\1\1\d*/.test(digits);
-    case "Middle Xy Xy Xy":
-      return /\d*(?:(\d)(\d)){3}\d*/.test(digits);
-
-    case "Fancy Number":
-      return /(\d)\1{2,}/.test(digits) || /(\d{2})\1+/.test(digits) || /(?:0123|1234|2345|3456|4567|5678|6789|9876|8765|7654|6543|5432|4321|3210)/.test(digits);
-    case "Hexa Ending":
-      return /(\d)\1\1\1\1\1$/.test(digits);
-    case "Mirror Numbers":
-      return digits === [...digits].reverse().join('');
-    case "Penta Ending":
-      return /(\d)\1\1\1\1$/.test(digits);
-    case "Semi Mirror Number":
-      const halfLength = Math.floor(digits.length / 2);
-      const firstHalf = digits.substring(0, halfLength);
-      const secondHalf = digits.substring(digits.length - halfLength).split('').reverse().join('');
-      return firstHalf === secondHalf;
-    case "Special Digit Numbers":
-      return /786|108|420|143|999|888|777|666|555|444|333|222|111|000/.test(digits);
-    case "Tetra Number":
-      return /(\d)\1\1\1/.test(digits);
-    case "Vvip Number":
-      return /(\d)\1{3,}/.test(digits) || /(\d{2})\1{2,}/.test(digits) || /(\d{3})\1{1,}/.test(digits) || /0000|1111|2222|3333|4444|5555|6666|7777|8888|9999/.test(digits);
-    case "Without 2 4 8":
-      return !/[248]/.test(digits);
-      
-    case "X ABCD ABCD X":
-      return /(\d)(\d)(\d)(\d)(\d)\2\3\4\5\1/.test(digits);
-    case "X00 X00":
-      return /(\d)00(\d)00/.test(digits);
-    case "X00X X00X":
-      return /(\d)00\1(\d)00\2/.test(digits);
-    case "XY ABAB CDCD":
-      return /(\d)(\d)(\d)(\d)\3\4(\d)(\d)\5\6/.test(digits);
-    case "XY ABC ABC XY":
-      return /(\d)(\d)(\d)(\d)(\d)\3\4\5\1\2/.test(digits);
-    case "XY ABCD ABCD":
-      return /(\d)(\d)(\d)(\d)(\d)(\d)\3\4\5\6/.test(digits);
-      
-    case "Years Numbers":
-      return /(19[5-9]\d|20[0-2]\d)/.test(digits);
-      
-    default:
-      return Math.random() < 0.1;
-  }
-};
-
 const QuickPatterns = () => {
-  const [selectedPattern, setSelectedPattern] = useState(patterns[0]);
-  const [displayedNumbers, setDisplayedNumbers] = useState<NumberData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  
-  const [allNumbers] = useState<NumberData[]>(() => generateMockNumbers(200));
-  
-  const [patternCache, setPatternCache] = useState<Record<string, NumberData[]>>({});
-  
+  const [numberInput, setNumberInput] = useState("");
+  const [matchingPatterns, setMatchingPatterns] = useState<string[]>([]);
+  const [selectedPatterns, setSelectedPatterns] = useState<string[]>([]);
+  const [tab, setTab] = useState("find");
+  const [copySuccess, setCopySuccess] = useState<string | null>(null);
+
+  // Check which patterns the input matches
   useEffect(() => {
-    setIsLoading(true);
-    
-    if (patternCache[selectedPattern]) {
-      setDisplayedNumbers(patternCache[selectedPattern]);
-      setIsLoading(false);
+    if (!numberInput) {
+      setMatchingPatterns([]);
       return;
     }
+
+    const matches = patterns
+      .filter(pattern => pattern.regex.test(numberInput))
+      .map(pattern => pattern.name);
     
-    const timeoutId = setTimeout(() => {
-      const filteredNumbers = allNumbers.filter(number => 
-        matchesPattern(number, selectedPattern)
-      );
-      
-      setPatternCache(prevCache => ({
-        ...prevCache,
-        [selectedPattern]: filteredNumbers
-      }));
-      
-      setDisplayedNumbers(filteredNumbers);
-      setIsLoading(false);
-    }, 600);
+    setMatchingPatterns(matches);
+  }, [numberInput]);
+
+  // Handle checkbox changes
+  const handlePatternSelect = (patternName: string) => {
+    if (selectedPatterns.includes(patternName)) {
+      setSelectedPatterns(selectedPatterns.filter(name => name !== patternName));
+    } else {
+      setSelectedPatterns([...selectedPatterns, patternName]);
+    }
+  };
+
+  // Copy pattern examples to clipboard
+  const copyExamples = () => {
+    const selected = patterns
+      .filter(pattern => selectedPatterns.includes(pattern.name))
+      .map(pattern => `${pattern.name}: ${pattern.example}`)
+      .join('\n');
     
-    return () => clearTimeout(timeoutId);
-  }, [selectedPattern, allNumbers]);
-  
-  const patternCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-    
-    Object.keys(patternCache).forEach(pattern => {
-      counts[pattern] = patternCache[pattern].length;
-    });
-    
-    return counts;
-  }, [patternCache]);
-  
+    navigator.clipboard.writeText(selected);
+    setCopySuccess("Copied!");
+    setTimeout(() => setCopySuccess(null), 2000);
+  };
+
   return (
     <MainLayout>
-      <div className="pt-8 pb-16">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="max-w-5xl mx-auto"
-          >
-            <div className="mb-10">
-              <h1 className="text-3xl md:text-4xl font-bold mb-4">Quick Pattern Numbers</h1>
-              <p className="text-gray-600 dark:text-gray-300 mb-6">
-                Browse our collection of special pattern mobile numbers. Choose the pattern type that suits your preference.
-              </p>
-              <Separator className="my-6" />
-            </div>
-            
-            <div className="mb-10">
-              <h2 className="text-xl font-semibold mb-4 dark:text-white">Pattern Types</h2>
-              <div className="flex flex-wrap gap-2">
-                {patterns.map((pattern) => (
-                  <Button
-                    key={pattern}
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setSelectedPattern(pattern)}
-                    className={`mb-2 transition-colors ${
-                      selectedPattern === pattern 
-                        ? 'pattern-button-active dark:bg-primary dark:text-white' 
-                        : 'dark:text-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800'
-                    }`}
-                  >
-                    {pattern}
-                    {patternCounts[pattern] !== undefined && 
-                      <span className="ml-2 text-xs opacity-70">({patternCounts[pattern]})</span>
-                    }
-                  </Button>
-                ))}
-              </div>
-            </div>
-            
-            <div className="mb-4 mt-8">
-              <h2 className="text-2xl font-semibold mb-2 dark:text-white">
-                {selectedPattern} <span className="text-gray-500 dark:text-gray-400 text-lg">({displayedNumbers.length})</span>
-              </h2>
-              <p className="text-gray-600 dark:text-gray-300 mb-6">
-                Browse our collection of {selectedPattern} mobile numbers. These numbers have special patterns that make them easy to remember.
-              </p>
-            </div>
-            
-            {isLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {Array.from({ length: 8 }).map((_, index) => (
-                  <div key={index} className="bg-gray-100 dark:bg-gray-800 rounded-xl h-64 animate-pulse"></div>
-                ))}
-              </div>
-            ) : (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5 }}
-                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
-              >
-                {displayedNumbers.map((number, index) => (
-                  <NumberCard key={`${selectedPattern}-${number.id}-${index}`} number={number} index={index} />
-                ))}
-              </motion.div>
-            )}
-          </motion.div>
-        </div>
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold mb-6">Number Pattern Identifier</h1>
+        
+        <Tabs defaultValue={tab} onValueChange={setTab} className="w-full">
+          <TabsList className="mb-6">
+            <TabsTrigger value="find" className="flex items-center gap-2">
+              <Search size={16} />
+              <span>Find Patterns</span>
+            </TabsTrigger>
+            <TabsTrigger value="browse" className="flex items-center gap-2">
+              <Check size={16} />
+              <span>Browse Patterns</span>
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="find" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Identify Patterns</CardTitle>
+                <CardDescription>
+                  Enter a phone number to identify any special patterns
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="number-input">Phone Number</Label>
+                    <Input
+                      id="number-input"
+                      placeholder="Enter a 10-digit number"
+                      value={numberInput}
+                      onChange={(e) => setNumberInput(e.target.value.replace(/\D/g, ''))}
+                      maxLength={10}
+                    />
+                  </div>
+                  
+                  {numberInput && (
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">Matching Patterns:</p>
+                      {matchingPatterns.length > 0 ? (
+                        <div className="flex flex-wrap gap-2">
+                          {matchingPatterns.map(pattern => (
+                            <PatternChip key={pattern} name={pattern} />
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground">No special patterns found</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="browse" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Browse Patterns</CardTitle>
+                <CardDescription>
+                  View all available number patterns and their descriptions
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {patterns.map((pattern) => (
+                    <div key={pattern.name} className="flex items-start space-x-3 pb-3 border-b last:border-0">
+                      <Checkbox
+                        id={`pattern-${pattern.name}`}
+                        checked={selectedPatterns.includes(pattern.name)}
+                        onCheckedChange={() => handlePatternSelect(pattern.name)}
+                      />
+                      <div className="space-y-1">
+                        <Label
+                          htmlFor={`pattern-${pattern.name}`}
+                          className="text-base font-medium"
+                        >
+                          {pattern.name}
+                        </Label>
+                        <p className="text-sm text-muted-foreground">
+                          {pattern.description}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Examples: {pattern.example}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+              <CardFooter>
+                <Button
+                  onClick={copyExamples}
+                  disabled={selectedPatterns.length === 0}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  {copySuccess ? (
+                    <>
+                      <Check size={16} className="text-green-500" />
+                      {copySuccess}
+                    </>
+                  ) : (
+                    <>
+                      <Copy size={16} />
+                      Copy examples
+                    </>
+                  )}
+                </Button>
+              </CardFooter>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </MainLayout>
   );
