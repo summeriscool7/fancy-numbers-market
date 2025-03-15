@@ -58,10 +58,9 @@ const customPatterns = [
   "Middle xxx yyy", "Middle xxxx", "Middle Xy Xy Xy", "Mirror Numbers", "Penta Ending",
   "Semi Mirror Number", "Special Digit Numbers", "Starting xxxx", "Tetra Number", "Vvip Number",
   "Without 2 4 8", "X ABCD ABCD X", "X00 X00", "X00X X00X", "XXX YYY Ending",
-  "XXX YYY Starting", "XXXX Ending", "XXYYZZ Starting", "XY ABAB CDCD", "XY ABC ABC XY",
+  "XXX YYY Starting", "XXXX Ending", "XXYYZZ Starting", "XY ABC ABC XY",
   "XY ABCD ABCD", "XY XY", "Xy Xy Xy Ending", "XY XY XY Starting", "XYZ XYZ Ending",
-  "Years Numbers", "0000 Number", "AB00 CD01", "787 Numbers", "ABCD X ABCD Y", "X00X Y00Y", "XY ABBA ABBA",
-  "ABCC X ABCC Y", "ABC XX ABC YY", "XY A0 B0 C0 D0"
+  "Years Numbers", "0000 Number", "AB00 CD01", "787 Numbers"
 ];
 
 const matchesPattern = (number: NumberData, pattern: string): boolean => {
@@ -357,6 +356,16 @@ const QuickPatterns = () => {
         setDisplayedNumbers(categorizedNumbers.abcd_xyz_xyz || []);
       } else if (selectedPattern === 'New Category 1') {
         setDisplayedNumbers(categorizedNumbers.new_categ1 || []);
+      } else if (selectedPattern === "Without 2 4 8") {
+        setDisplayedNumbers(uploadedNumbers.filter(number => !/[248]/.test(number.toString())).map(number => ({ 
+          id: `custom-without-248-${number}`,
+          number: number.toString(),
+          price: Math.floor(Math.random() * 5000) + 500,
+          carrier: ['VI', 'AIRTEL', 'JIO'][Math.floor(Math.random() * 3)],
+          specialPattern: ["Without 2 4 8"],
+          digitSum: number.toString().split('').reduce((sum, digit) => sum + parseInt(digit), 0),
+          singleDigitSum: 0
+       })))
       } else if (selectedPattern === 'ABABDABABE') {
         setDisplayedNumbers(categorizedNumbers.ababdababe || []);
       } else {
