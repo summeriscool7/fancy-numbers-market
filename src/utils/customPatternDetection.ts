@@ -1,4 +1,3 @@
-
 // Custom pattern detection functions for CSV uploads
 
 // Function to find digit sum and reduce to single digit
@@ -135,6 +134,11 @@ export const findPattern = (num: number): Record<string, boolean> | null => {
     obj.abc_abc_wxyz = false;
   }
 
+  // Add anything_55 pattern if the number contains '5' but not '2', '4', or '8'
+  if (checkNumber(str)) {
+    obj.anything_55 = true;
+  }
+
   // XXX_Z_XXX pattern
   if ((str[9] === str[8] && str[8] === str[7] && str[7] === str[5] && str[5] === str[4] && str[4] === str[3]) ||
       (str[0] === str[1] && str[1] === str[2] && str[2] === str[4] && str[4] === str[5] && str[5] === str[6])) {
@@ -179,14 +183,12 @@ export const findPattern = (num: number): Record<string, boolean> | null => {
     obj.ababdababe = false;
   }
 
-  // Six Counting pattern
+  // Add six counting pattern
   if (str.includes('012345') || str.includes('123456') || str.includes('234567') || 
       str.includes('345678') || str.includes('456789') || str.includes('567890') || 
       str.includes('67890')) {
     obj.six_counting = true;
   }
-
-  // Add more pattern checks as needed from the original function
 
   return obj;
 };
@@ -283,7 +285,12 @@ export const categorizeNumbersByPatterns = (numbers: number[]): Record<string, n
       categories.mxthree.push(num);
     }
 
+    if (ans2 === 2) {
+      categories.mxtwo.push(num);
+    }
+
     if (ans3 >= 7) {
+      categories.mxfreq7.push(num);
       categories.super_vip.push(num);
     }
 
@@ -355,6 +362,31 @@ export const categorizeNumbersByPatterns = (numbers: number[]): Record<string, n
       if (supV(num)) {
         categories.super_vip.push(num);
       }
+    }
+    
+    // If the number doesn't fit into any specific category, add it to others
+    const inOtherCategories = 
+      categories.super_vip.includes(num) ||
+      categories.xxxx.includes(num) ||
+      categories.x00x_y00y.includes(num) ||
+      categories.abcd_abcd.includes(num) ||
+      categories.abxbabab.includes(num) ||
+      categories.mxthree.includes(num) ||
+      categories.mxtwo.includes(num) ||
+      categories.mxfreq7.includes(num) ||
+      categories.abcd_x_abcd_y.includes(num) ||
+      categories.xy_abba_abba.includes(num) ||
+      categories.abcc_x_abcc_y.includes(num) ||
+      categories.abc_xx_abc_yy.includes(num) ||
+      categories.xy_a0_b0_c0_d0.includes(num) ||
+      categories.xy_abab_cdcd.includes(num) ||
+      categories.abc_abc_wxyz.includes(num) ||
+      categories.abcd_xyz_xyz.includes(num) ||
+      categories.new_categ1.includes(num) ||
+      categories.ababdababe.includes(num);
+      
+    if (!inOtherCategories) {
+      categories.others.push(num);
     }
   }
 

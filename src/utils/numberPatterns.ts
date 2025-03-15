@@ -1,241 +1,93 @@
-let areNumbersCached: boolean = false;
-let cachedNumbers: Record<string, any> = {};
-
-
-// Define pattern categories
-export const PATTERN_CATEGORIES = {
-  SEQUENTIAL: 'Sequential',
-  REPEATING: 'Repeating',
-  PALINDROME: 'Palindrome',
-  MIRROR: 'Mirror',
-  ASCENDING: 'Ascending',
-  DESCENDING: 'Descending',
-  PREMIUM: 'Premium',
-  ROYAL: 'Royal',
-  LUCKY: 'Lucky'
-};
-
-// Function to identify patterns in a number
-export const identifyPatterns = (phoneNumber: string): string[] => {
-  // Clean the number (remove non-digit characters)
-  const number = phoneNumber.replace(/\D/g, '');
-  const patterns: string[] = [];
+// Function to generate mock numbers with patterns
+export const generateMockNumbers = (count: number): NumberData[] => {
+  const numbers: NumberData[] = [];
+  const carriers = ["JIO", "AIRTEL", "VI"];
+  const specialPatterns = [
+    "Royal", "Premium", "Lucky", "Sequential", "Repeating", "Mirror", 
+    "Palindrome", "Ascending", "Descending"
+  ];
   
-  // Check for sequential patterns (e.g., 1234, 5678)
-  if (hasSequentialPattern(number)) {
-    patterns.push(PATTERN_CATEGORIES.SEQUENTIAL);
-  }
+  // Helper for generating patterned numbers
+  const generatePatternedNumber = (index: number): string => {
+    // Create various patterns
+    switch (index % 20) {
+      case 0: return "98" + Math.random().toString().substring(2, 10); // Random
+      case 1: return "987654321" + Math.floor(Math.random() * 10); // Descending
+      case 2: return "912345678" + Math.floor(Math.random() * 10); // Ascending
+      case 3: return "9" + "0".repeat(Math.floor(Math.random() * 3)) + Math.random().toString().substring(2, 9); // Leading zeros
+      case 4: return "91" + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10) + "9999"; // Ending repeated
+      case 5: return "9876543210"; // Full sequence
+      case 6: return "9" + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10) + "8888" + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10); // Middle repeated
+      case 7: return "90" + Math.floor(Math.random() * 10) + "1234" + Math.floor(Math.random() * 10) + "7"; // Has 1234
+      case 8: return "98" + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10) + "1111"; // Ending same
+      case 9: return "9" + Math.floor(Math.random() * 10) + "7777" + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10); // 7777 in middle
+      case 10: return "9786" + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10); // Starts with 9786
+      case 11: return "9" + Math.floor(Math.random() * 10) + "143" + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10) + "143"; // Contains 143 twice
+      case 12: return "9" + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10) + "4545" + Math.floor(Math.random() * 10); // Contains 4545
+      case 13: return "9" + Math.floor(Math.random() * 10) + "1313" + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10); // Contains 1313
+      case 14: return "9696" + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10); // Starts with 9696
+      case 15: return "9" + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10) + "7890"; // Ends with 7890
+      case 16: return "9" + Math.floor(Math.random() * 10) + "8" + Math.floor(Math.random() * 10) + "7" + Math.floor(Math.random() * 10) + "6" + Math.floor(Math.random() * 10) + "5"; // Alternating pattern
+      case 17: return "9" + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10) + "420" + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10) + "0"; // Contains 420
+      case 18: return "9" + Math.floor(Math.random() * 10) + "0" + Math.floor(Math.random() * 10) + "0" + Math.floor(Math.random() * 10) + "0" + Math.floor(Math.random() * 10); // Has zeros in alternating positions
+      case 19: return "9" + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10) + Math.floor(Math.random() * 10) + "786"; // Ends with 786
+      default: return "98" + Math.random().toString().substring(2, 10);
+    }
+  };
   
-  // Check for repeating digits (e.g., 0000, 9999, etc.)
-  if (hasRepeatingDigits(number, 4)) {
-    patterns.push(PATTERN_CATEGORIES.REPEATING);
-  }
-  
-  // Check for palindrome (e.g., 12321, 45654)
-  if (isPalindrome(number)) {
-    patterns.push(PATTERN_CATEGORIES.PALINDROME);
-  }
-  
-  // Check for mirror patterns (e.g., 1221, 5665)
-  if (isMirror(number)) {
-    patterns.push(PATTERN_CATEGORIES.MIRROR);
-  }
-  
-  // Check for ascending sequence (e.g., 1235, 2468)
-  if (isAscending(number)) {
-    patterns.push(PATTERN_CATEGORIES.ASCENDING);
-  }
-  
-  // Check for descending sequence (e.g., 9876, 8642)
-  if (isDescending(number)) {
-    patterns.push(PATTERN_CATEGORIES.DESCENDING);
-  }
-  
-  // Check for repeating patterns (e.g., 1212, 7878)
-  if (hasRepeatingPattern(number)) {
-    patterns.push(PATTERN_CATEGORIES.REPEATING);
-  }
-  
-  // Identify premium patterns (combination of multiple patterns)
-  if (patterns.length >= 2) {
-    patterns.push(PATTERN_CATEGORIES.PREMIUM);
-  }
-  
-  // Check for royal numbers (containing mostly 8s and 9s)
-  if (isRoyalNumber(number)) {
-    patterns.push(PATTERN_CATEGORIES.ROYAL);
-  }
-  
-  // Check for lucky numbers (contains 7 or multiple 8s)
-  if (isLuckyNumber(number)) {
-    patterns.push(PATTERN_CATEGORIES.LUCKY);
-  }
-  
-  return patterns;
-};
-
-// Check if number has sequential pattern
-const hasSequentialPattern = (number: string): boolean => {
-  for (let i = 0; i < number.length - 3; i++) {
-    const a = parseInt(number[i]);
-    const b = parseInt(number[i + 1]);
-    const c = parseInt(number[i + 2]);
-    const d = parseInt(number[i + 3]);
+  // Generate mock number data
+  for (let i = 0; i < count; i++) {
+    const number = generatePatternedNumber(i);
+    const digitSum = number.split('').reduce((sum, digit) => sum + parseInt(digit), 0);
     
-    if ((b === a + 1 && c === b + 1 && d === c + 1) || 
-        (b === a - 1 && c === b - 1 && d === c - 1)) {
-      return true;
-    }
-  }
-  
-  return false;
-};
-
-// Check if number has n or more repeating digits
-const hasRepeatingDigits = (number: string, minRepeat: number): boolean => {
-  for (let digit = 0; digit <= 9; digit++) {
-    const regex = new RegExp(`${digit}{${minRepeat},}`);
-    if (regex.test(number)) {
-      return true;
-    }
-  }
-  
-  return false;
-};
-
-// Check if number is a palindrome
-const isPalindrome = (number: string): boolean => {
-  const len = number.length;
-  for (let i = 0; i < len / 2; i++) {
-    if (number[i] !== number[len - 1 - i]) {
-      return false;
-    }
-  }
-  
-  return true;
-};
-
-// Check if number has mirror pattern (second half is mirror of first half)
-const isMirror = (number: string): boolean => {
-  if (number.length % 2 !== 0) return false;
-  
-  const mid = number.length / 2;
-  const firstHalf = number.slice(0, mid);
-  const secondHalf = number.slice(mid).split('').reverse().join('');
-  
-  return firstHalf === secondHalf;
-};
-
-// Check if digits are in ascending order
-const isAscending = (number: string): boolean => {
-  for (let i = 0; i < number.length - 3; i++) {
-    if (parseInt(number[i]) < parseInt(number[i + 1]) && 
-        parseInt(number[i + 1]) < parseInt(number[i + 2]) && 
-        parseInt(number[i + 2]) < parseInt(number[i + 3])) {
-      return true;
-    }
-  }
-  
-  return false;
-};
-
-// Check if digits are in descending order
-const isDescending = (number: string): boolean => {
-  for (let i = 0; i < number.length - 3; i++) {
-    if (parseInt(number[i]) > parseInt(number[i + 1]) && 
-        parseInt(number[i + 1]) > parseInt(number[i + 2]) && 
-        parseInt(number[i + 2]) > parseInt(number[i + 3])) {
-      return true;
-    }
-  }
-  
-  return false;
-};
-
-// Check if number has repeating pattern
-const hasRepeatingPattern = (number: string): boolean => {
-  for (let i = 0; i < number.length - 3; i++) {
-    if (number[i] === number[i + 2] && number[i + 1] === number[i + 3]) {
-      return true;
-    }
-  }
-  
-  return false;
-};
-
-// Check if it's a royal number (contains mostly 8s and 9s)
-const isRoyalNumber = (number: string): boolean => {
-  const count8and9 = number.split('').filter(digit => digit === '8' || digit === '9').length;
-  return count8and9 >= number.length * 0.5;
-};
-
-// Check if it's a lucky number (contains 7 or multiple 8s)
-const isLuckyNumber = (number: string): boolean => {
-  const count7 = number.split('').filter(digit => digit === '7').length;
-  const count8 = number.split('').filter(digit => digit === '8').length;
-  
-  return count7 >= 2 || count8 >= 3;
-};
-
-// Calculate numerological value of a phone number
-export const calculateNumerologicalValue = (phoneNumber: string): number => {
-  const number = phoneNumber.replace(/\D/g, '');
-  let sum = 0;
-  
-  for (let i = 0; i < number.length; i++) {
-    sum += parseInt(number[i]);
-  }
-  
-  // Reduce to single digit
-  while (sum > 9) {
-    let tempSum = 0;
-    while (sum > 0) {
-      tempSum += sum % 10;
-      sum = Math.floor(sum / 10);
-    }
-    sum = tempSum;
-  }
-  
-  return sum;
-};
-
-
-// Generate a list of mock phone numbers
-export const generateMockNumbers = (count = 50): any[] => {
-  if (areNumbersCached) return cachedNumbers;
-  console.log('Numbers are not cached so checking again')
-  const numbersList = __APP_CONFIG__.list;
-
-  const carriers = ['VI', 'AIRTEL', 'JIO'];
-  const numbers = [];
-
-  for (let i = 0; i < numbersList.length; i++) {
-    const number = numbersList[i].number;
-    const price = numbersList[i].price;
-    
- 
-    const digitSum = String(number).split('').reduce((sum, digit) => sum + parseInt(digit), 0);
     let singleDigitSum = digitSum;
     while (singleDigitSum >= 10) {
       singleDigitSum = singleDigitSum.toString().split('').reduce((sum, digit) => sum + parseInt(digit), 0);
     }
     
-    // Determine price based on patterns (more patterns = higher price)
+    // Randomly assign patterns and calculate price
+    const randomPatterns: string[] = [];
+    const patternCount = Math.floor(Math.random() * 3);
+    for (let j = 0; j <= patternCount; j++) {
+      const pattern = specialPatterns[Math.floor(Math.random() * specialPatterns.length)];
+      if (!randomPatterns.includes(pattern)) {
+        randomPatterns.push(pattern);
+      }
+    }
     
-    const patterns = identifyPatterns(String(number));
+    const basePrice = 1000 + Math.floor(Math.random() * 5000);
+    const patternMultiplier = 1 + (randomPatterns.length * 0.3);
+    const price = Math.floor(basePrice * patternMultiplier);
     
     numbers.push({
-      id: `num-${i + 1}`,
-      number: String(number),
+      id: `mock-${i}`,
+      number,
       price,
       carrier: carriers[Math.floor(Math.random() * carriers.length)],
-      specialPattern: patterns,
+      specialPattern: randomPatterns,
       digitSum,
       singleDigitSum
     });
   }
   
-  cachedNumbers = numbers;
-  areNumbersCached = true;
   return numbers;
+};
+
+// Create mock number patterns
+export const PATTERN_CATEGORIES = {
+  SEQUENTIAL: "Sequential",
+  REPEATING: "Repeating",
+  PALINDROME: "Palindrome",
+  MIRROR: "Mirror",
+  ASCENDING: "Ascending",
+  DESCENDING: "Descending",
+  PREMIUM: "Premium",
+  ROYAL: "Royal",
+  LUCKY: "Lucky"
+};
+
+// For debugging
+export const APP_CONFIG = {
+  DEBUG: true,
+  VERSION: "1.0.0"
 };
