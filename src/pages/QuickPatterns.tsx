@@ -1,33 +1,22 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import MainLayout from '@/layouts/MainLayout';
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
+import { Toggle } from '@/components/ui/toggle';
 import { generateMockNumbers } from '@/utils/numberPatterns';
 import { categorizeNumbersByPatterns } from '@/utils/customPatternDetection';
 import NumberCard from '@/components/NumberCard';
 import { Separator } from '@/components/ui/separator';
 import { NumberData } from '@/utils/filterUtils';
 import CSVUploader from '@/components/CSVUploader';
-import FilterSection from '@/components/FilterSection';
-import { FilterOptions, filterNumbers } from '@/utils/filterUtils';
-import { 
-  File, 
-  FileUp, 
-  Filter, 
-  Database, 
-  ToggleLeft, 
-  ToggleRight 
-} from 'lucide-react';
+import { Filter, FileText } from 'lucide-react';
 
 const patterns = [
   "000 Number", "00AB 00CD", "1008", "108 108 Numbers", "143 143 Love Number",
   "420 420 Number", "786 Numbers", "78692 Numbers", "850000 xyxy", "916 916 Gold",
-  "AAB AAB XY", "AAB AAB XYXY", "AB XXX CD YYY", "AB00 CD00", "ABA ABA XYXY",
+  "AAB AAB XY XY", "AAB AAB XYXY", "AB XXX CD YYY", "AB00 CD00", "ABA ABA XYXY",
   "ABAB CDCD XY", "ABAB X CDCD X", "ABAB XY ACAC", "ABAB XY CDCD", "ABB ABB Ending",
-  "ABB ABB XYXY", "ABC ABC XYXY", "ABC ABD XY", "Abcd Abcd", "ABCD ABCD XY",
+  "ABB ABB XYXY", "ABC ABC XYXY", "ABC ABD XY XY", "Abcd Abcd", "ABCD ABCD XY",
   "ABCD XY ABCD", "ABXXX CDYYY", "AXXX BYYY", "AxxxB CxxxD", "Counting 11 12 13 TYPE",
   "Counting Numbers", "Double 786 786", "Double Jodi", "Doubling Number", "ENDING XXX",
   "Ending XXYYZZ", "Fancy Number", "Hexa Ending", "Middle Hexa", "Middle Penta",
@@ -41,8 +30,8 @@ const patterns = [
 
 const customPatterns = [
   "SuperVIP", "XXXX Pattern", "X00X Y00Y", "ABCD ABCD", "ABXBABAB", 
-  "MX Three", "MX Two", "Others", "MX Freq7", "ABCD X ABCD Y", 
-  "XY ABBA ABBA", "ABCC X ABCC Y", "ABC XX ABC YY", "XY A0 B0 C0 D0", 
+  "MX Three", "Others", "ABCD X ABCD Y", "XY ABBA ABBA", 
+  "ABCC X ABCC Y", "ABC XX ABC YY", "XY A0 B0 C0 D0", 
   "XY ABAB CDCD", "ABC ABC WXYZ", "ABCD XYZ XYZ", 
   "New Category 1", "ABABDABABE"
 ];
@@ -72,18 +61,18 @@ const matchesPattern = (number: NumberData, pattern: string): boolean => {
     case "78692 Numbers":
       return digits.includes('78692');
     case "850000 xyxy":
-      return /85(\d)\1+/.test(digits);
+      return /85(?:(\d)\1){2,}/.test(digits);
     case "916 916 Gold":
       return /.*916.*916.*/.test(digits);
 
     case "XY XY":
       return /(\d{2})\1/.test(digits);
-    case "AAB AAB XY":
-      return /(\d)\1(\d).*\1\1\2/.test(digits);
+    case "AAB AAB XY XY":
+      return /(\d)(\d)(\d)\1\2\3.*(\d)(\d)\4\5/.test(digits);
     case "AAB AAB XYXY":
-      return /(\d)\1(\d).*\1\1\2(\d{2})/.test(digits);
+      return /(\d)(\d)(\d)\1\2\3.*(\d)(\d)\4\5/.test(digits);
     case "ABA ABA XYXY":
-      return /(\d)(\d)\1.*\1\2\1(\d{2})/.test(digits);
+      return /(\d)(\d)\1\1\2\1.*(\d)(\d)\3\4/.test(digits);
     case "AB XXX CD YYY":
       return /(\d)(\d)(\d)\3\3(\d)(\d)(\d)\6\6/.test(digits);
     case "AB00 CD00":
@@ -93,15 +82,15 @@ const matchesPattern = (number: NumberData, pattern: string): boolean => {
     case "ABAB CDCD XY":
       return /(\d)(\d)\1\2(\d)(\d)\3\4(\d)(\d)/.test(digits);
     case "ABAB X CDCD X": 
-      return /(\d)(\d)\1\2(\d)(\d)(\d)\3\4\5/.test(digits);
+      return /(\d)(\d)\1\2(\d)(\d)(\d)\4\5\6/.test(digits);
     case "ABAB XY ACAC":
-      return /(\d)(\d)\1\2(\d)(\d)\1(\d)/.test(digits);
+      return /(\d)(\d)\1\2(\d)(\d)\1\3/.test(digits);
     case "ABAB XY CDCD":
-      return /(\d)(\d)\1\2(\d)(\d)(\d)(\d)\3\4/.test(digits);
+      return /(\d)(\d)\1\2(\d)(\d)(\d)(\d)\7\8/.test(digits);
     case "ABB ABB Ending":
       return /.*(\d)(\d)\2\1\2\2$/.test(digits);
     case "AXXX BYYY":
-      return /(\d)(\d)\2\2(\d)(\d)\4\4/.test(digits);
+      return /(\d)(\d)\2\2(\d)(\d)\5\5/.test(digits);
     case "AxxxB CxxxD":
       return /(\d)(\d)\2\2(\d)(\d)(\d)\6\6(\d)/.test(digits);
 
@@ -199,7 +188,6 @@ const QuickPatterns = () => {
   const [uploadedNumbers, setUploadedNumbers] = useState<number[]>([]);
   const [categorizedNumbers, setCategorizedNumbers] = useState<Record<string, NumberData[]>>({});
   const [processingCSV, setProcessingCSV] = useState(false);
-  const [filters, setFilters] = useState<FilterOptions>({});
 
   const [allNumbers] = useState<NumberData[]>(() => generateMockNumbers(200));
   const [patternCache, setPatternCache] = useState<Record<string, NumberData[]>>({});
@@ -248,14 +236,6 @@ const QuickPatterns = () => {
     }, 100);
   }, [uploadedNumbers]);
 
-  // Filter the uploaded numbers based on selected filters
-  const applyFiltersToUploadedNumbers = (numbers: NumberData[]) => {
-    if (!filters || Object.keys(filters).length === 0) {
-      return numbers;
-    }
-    return filterNumbers(numbers, filters);
-  };
-
   useEffect(() => {
     if (useCustomUpload) return;
     
@@ -290,56 +270,47 @@ const QuickPatterns = () => {
     setIsLoading(true);
     
     setTimeout(() => {
-      let numbers: NumberData[] = [];
-      
       if (selectedPattern === 'SuperVIP') {
-        numbers = categorizedNumbers.super_vip || [];
+        setDisplayedNumbers(categorizedNumbers.super_vip || []);
       } else if (selectedPattern === 'XXXX Pattern') {
-        numbers = categorizedNumbers.xxxx || [];
+        setDisplayedNumbers(categorizedNumbers.xxxx || []);
       } else if (selectedPattern === 'X00X Y00Y') {
-        numbers = categorizedNumbers.x00x_y00y || [];
+        setDisplayedNumbers(categorizedNumbers.x00x_y00y || []);
       } else if (selectedPattern === 'ABCD ABCD') {
-        numbers = categorizedNumbers.abcd_abcd || [];
+        setDisplayedNumbers(categorizedNumbers.abcd_abcd || []);
       } else if (selectedPattern === 'ABXBABAB') {
-        numbers = categorizedNumbers.abxbabab || [];
+        setDisplayedNumbers(categorizedNumbers.abxbabab || []);
       } else if (selectedPattern === 'MX Three') {
-        numbers = categorizedNumbers.mxthree || [];
-      } else if (selectedPattern === 'MX Two') {
-        numbers = categorizedNumbers.mxtwo || [];
+        setDisplayedNumbers(categorizedNumbers.mxthree || []);
       } else if (selectedPattern === 'Others') {
-        numbers = categorizedNumbers.others || [];
-      } else if (selectedPattern === 'MX Freq7') {
-        numbers = categorizedNumbers.mxfreq7 || [];
+        setDisplayedNumbers(categorizedNumbers.others || []);
       } else if (selectedPattern === 'ABCD X ABCD Y') {
-        numbers = categorizedNumbers.abcd_x_abcd_y || [];
+        setDisplayedNumbers(categorizedNumbers.abcd_x_abcd_y || []);
       } else if (selectedPattern === 'XY ABBA ABBA') {
-        numbers = categorizedNumbers.xy_abba_abba || [];
+        setDisplayedNumbers(categorizedNumbers.xy_abba_abba || []);
       } else if (selectedPattern === 'ABCC X ABCC Y') {
-        numbers = categorizedNumbers.abcc_x_abcc_y || [];
+        setDisplayedNumbers(categorizedNumbers.abcc_x_abcc_y || []);
       } else if (selectedPattern === 'ABC XX ABC YY') {
-        numbers = categorizedNumbers.abc_xx_abc_yy || [];
+        setDisplayedNumbers(categorizedNumbers.abc_xx_abc_yy || []);
       } else if (selectedPattern === 'XY A0 B0 C0 D0') {
-        numbers = categorizedNumbers.xy_a0_b0_c0_d0 || [];
+        setDisplayedNumbers(categorizedNumbers.xy_a0_b0_c0_d0 || []);
       } else if (selectedPattern === 'XY ABAB CDCD') {
-        numbers = categorizedNumbers.xy_abab_cdcd || [];
+        setDisplayedNumbers(categorizedNumbers.xy_abab_cdcd || []);
       } else if (selectedPattern === 'ABC ABC WXYZ') {
-        numbers = categorizedNumbers.abc_abc_wxyz || [];
+        setDisplayedNumbers(categorizedNumbers.abc_abc_wxyz || []);
       } else if (selectedPattern === 'ABCD XYZ XYZ') {
-        numbers = categorizedNumbers.abcd_xyz_xyz || [];
+        setDisplayedNumbers(categorizedNumbers.abcd_xyz_xyz || []);
       } else if (selectedPattern === 'New Category 1') {
-        numbers = categorizedNumbers.new_categ1 || [];
+        setDisplayedNumbers(categorizedNumbers.new_categ1 || []);
       } else if (selectedPattern === 'ABABDABABE') {
-        numbers = categorizedNumbers.ababdababe || [];
+        setDisplayedNumbers(categorizedNumbers.ababdababe || []);
       } else {
-        numbers = [];
+        setDisplayedNumbers([]);
       }
       
-      // Apply filters to the selected category
-      const filteredNumbers = applyFiltersToUploadedNumbers(numbers);
-      setDisplayedNumbers(filteredNumbers);
       setIsLoading(false);
     }, 300);
-  }, [selectedPattern, categorizedNumbers, useCustomUpload, filters]);
+  }, [selectedPattern, categorizedNumbers, useCustomUpload]);
 
   const patternCounts = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -355,9 +326,7 @@ const QuickPatterns = () => {
       if (categorizedNumbers.abcd_abcd) counts['ABCD ABCD'] = categorizedNumbers.abcd_abcd.length;
       if (categorizedNumbers.abxbabab) counts['ABXBABAB'] = categorizedNumbers.abxbabab.length;
       if (categorizedNumbers.mxthree) counts['MX Three'] = categorizedNumbers.mxthree.length;
-      if (categorizedNumbers.mxtwo) counts['MX Two'] = categorizedNumbers.mxtwo.length;
       if (categorizedNumbers.others) counts['Others'] = categorizedNumbers.others.length;
-      if (categorizedNumbers.mxfreq7) counts['MX Freq7'] = categorizedNumbers.mxfreq7.length;
       if (categorizedNumbers.abcd_x_abcd_y) counts['ABCD X ABCD Y'] = categorizedNumbers.abcd_x_abcd_y.length;
       if (categorizedNumbers.xy_abba_abba) counts['XY ABBA ABBA'] = categorizedNumbers.xy_abba_abba.length;
       if (categorizedNumbers.abcc_x_abcc_y) counts['ABCC X ABCC Y'] = categorizedNumbers.abcc_x_abcc_y.length;
@@ -373,10 +342,10 @@ const QuickPatterns = () => {
     return counts;
   }, [patternCache, categorizedNumbers, useCustomUpload]);
 
-  const handleToggleChange = (checked: boolean) => {
-    setUseCustomUpload(checked);
+  const handleToggleChange = () => {
+    setUseCustomUpload(!useCustomUpload);
     
-    if (checked) {
+    if (!useCustomUpload) {
       setSelectedPattern(customPatterns[0]);
     } else {
       setSelectedPattern(patterns[0]);
@@ -387,14 +356,6 @@ const QuickPatterns = () => {
     setUploadedNumbers(numbers);
   };
 
-  const handleFilterChange = (newFilters: FilterOptions) => {
-    setFilters(newFilters);
-  };
-
-  const handleFilterReset = () => {
-    setFilters({});
-  };
-
   return (
     <MainLayout>
       <div className="pt-8 pb-16">
@@ -403,6 +364,7 @@ const QuickPatterns = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
+            className="max-w-5xl mx-auto"
           >
             <div className="mb-10">
               <h1 className="text-3xl md:text-4xl font-bold mb-4">Quick Pattern Numbers</h1>
@@ -412,139 +374,106 @@ const QuickPatterns = () => {
               <Separator className="my-6" />
             </div>
             
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-              {/* Left column for filters */}
-              <div className="lg:col-span-1">
-                <div className="mb-8 bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700">
-                  <h2 className="text-xl font-semibold mb-4">Search Mode</h2>
-                  
-                  <div className="flex flex-col space-y-6">
-                    <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-750 rounded-lg border border-gray-200 dark:border-gray-700">
-                      <div className="flex items-center space-x-3">
-                        <Database className={`w-5 h-5 ${!useCustomUpload ? "text-primary" : "text-gray-400 dark:text-gray-500"}`} />
-                        <div className={`font-medium ${!useCustomUpload ? "text-gray-900 dark:text-white" : "text-gray-500 dark:text-gray-400"}`}>
-                          Catalog Numbers
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center space-x-2">
-                        <Switch
-                          checked={useCustomUpload}
-                          onCheckedChange={handleToggleChange}
-                          className="data-[state=checked]:bg-primary"
-                        />
-                        
-                        <div className="relative w-6 h-6 flex items-center justify-center">
-                          {useCustomUpload ? (
-                            <ToggleRight className="w-5 h-5 text-primary absolute" />
-                          ) : (
-                            <ToggleLeft className="w-5 h-5 text-gray-400 absolute" />
-                          )}
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center space-x-3">
-                        <div className={`font-medium ${useCustomUpload ? "text-gray-900 dark:text-white" : "text-gray-500 dark:text-gray-400"}`}>
-                          Your Numbers
-                        </div>
-                        <FileUp className={`w-5 h-5 ${useCustomUpload ? "text-primary" : "text-gray-400 dark:text-gray-500"}`} />
-                      </div>
-                    </div>
-                    
-                    {useCustomUpload && (
-                      <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800">
-                        <h3 className="text-lg font-medium mb-2">Upload Your CSV File</h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                          Upload a CSV file containing phone numbers to analyze them using our pattern detection algorithms.
-                        </p>
-                        <CSVUploader 
-                          onNumbersExtracted={handleNumbersExtracted} 
-                          isProcessing={processingCSV}
-                        />
-                        {processingCSV && (
-                          <div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
-                            Processing your numbers... This may take a moment.
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    
-                    {useCustomUpload && uploadedNumbers.length > 0 && (
-                      <FilterSection 
-                        onFilterChange={handleFilterChange}
-                        onFilterReset={handleFilterReset}
-                      />
-                    )}
-                  </div>
-                </div>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold">Search Mode</h2>
+              <div className="flex items-center space-x-2">
+                <span className={`text-sm ${!useCustomUpload ? 'font-medium' : ''}`}>
+                  Catalog Numbers
+                </span>
+                <Toggle 
+                  pressed={useCustomUpload}
+                  onPressedChange={handleToggleChange}
+                  aria-label="Toggle search mode"
+                  className="data-[state=on]:bg-primary"
+                >
+                  {useCustomUpload ? <FileText className="h-4 w-4" /> : <Filter className="h-4 w-4" />}
+                </Toggle>
+                <span className={`text-sm ${useCustomUpload ? 'font-medium' : ''}`}>
+                  Your Numbers
+                </span>
               </div>
-              
-              {/* Right column for pattern selection and number display */}
-              <div className="lg:col-span-3">
-                <div className="mb-10">
-                  <h2 className="text-xl font-semibold mb-4 dark:text-white">Pattern Types</h2>
-                  <div className="flex flex-wrap gap-2">
-                    {(useCustomUpload ? customPatterns : patterns).map((pattern) => (
-                      <Button
-                        key={pattern}
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setSelectedPattern(pattern)}
-                        className={`mb-2 transition-colors ${
-                          selectedPattern === pattern 
-                            ? 'pattern-button-active dark:bg-primary dark:text-white' 
-                            : 'dark:text-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800'
-                        }`}
-                      >
-                        {pattern}
-                        {patternCounts[pattern] !== undefined && 
-                          <span className="ml-2 text-xs opacity-70">({patternCounts[pattern]})</span>
-                        }
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="mb-4 mt-8">
-                  <h2 className="text-2xl font-semibold mb-2 dark:text-white">
-                    {selectedPattern} <span className="text-gray-500 dark:text-gray-400 text-lg">({displayedNumbers.length})</span>
-                  </h2>
-                  <p className="text-gray-600 dark:text-gray-300 mb-6">
-                    {useCustomUpload 
-                      ? `These are your ${selectedPattern} pattern numbers extracted from the uploaded CSV file.`
-                      : `Browse our collection of ${selectedPattern} mobile numbers. These numbers have special patterns that make them easy to remember.`
-                    }
-                  </p>
-                </div>
-
-                {isLoading ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                    {Array.from({ length: 8 }).map((_, index) => (
-                      <div key={index} className="bg-gray-100 dark:bg-gray-800 rounded-xl h-64 animate-pulse"></div>
-                    ))}
-                  </div>
-                ) : displayedNumbers.length > 0 ? (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.5 }}
-                    className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"
-                  >
-                    {displayedNumbers.map((number, index) => (
-                      <NumberCard key={`${selectedPattern}-${number.id}-${index}`} number={number} index={index} />
-                    ))}
-                  </motion.div>
-                ) : (
-                  <div className="text-center py-12">
-                    <p className="text-gray-500 dark:text-gray-400">
-                      {useCustomUpload 
-                        ? "No matching numbers found in your CSV. Try uploading a different file."
-                        : "No numbers match this pattern in our catalog."}
-                    </p>
+            </div>
+            
+            {useCustomUpload && (
+              <div className="mb-8 p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800">
+                <h3 className="text-lg font-medium mb-2">Upload Your CSV File</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                  Upload a CSV file containing phone numbers to analyze them using our pattern detection algorithms.
+                </p>
+                <CSVUploader 
+                  onNumbersExtracted={handleNumbersExtracted} 
+                  isProcessing={processingCSV}
+                />
+                {processingCSV && (
+                  <div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
+                    Processing your numbers... This may take a moment.
                   </div>
                 )}
               </div>
+            )}
+
+            <div className="mb-10">
+              <h2 className="text-xl font-semibold mb-4 dark:text-white">Pattern Types</h2>
+              <div className="flex flex-wrap gap-2">
+                {(useCustomUpload ? customPatterns : patterns).map((pattern) => (
+                  <Button
+                    key={pattern}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setSelectedPattern(pattern)}
+                    className={`mb-2 transition-colors ${
+                      selectedPattern === pattern 
+                        ? 'pattern-button-active dark:bg-primary dark:text-white' 
+                        : 'dark:text-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800'
+                    }`}
+                  >
+                    {pattern}
+                    {patternCounts[pattern] !== undefined && 
+                      <span className="ml-2 text-xs opacity-70">({patternCounts[pattern]})</span>
+                    }
+                  </Button>
+                ))}
+              </div>
             </div>
+
+            <div className="mb-4 mt-8">
+              <h2 className="text-2xl font-semibold mb-2 dark:text-white">
+                {selectedPattern} <span className="text-gray-500 dark:text-gray-400 text-lg">({displayedNumbers.length})</span>
+              </h2>
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
+                {useCustomUpload 
+                  ? `These are your ${selectedPattern} pattern numbers extracted from the uploaded CSV file.`
+                  : `Browse our collection of ${selectedPattern} mobile numbers. These numbers have special patterns that make them easy to remember.`
+                }
+              </p>
+            </div>
+
+            {isLoading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {Array.from({ length: 8 }).map((_, index) => (
+                  <div key={index} className="bg-gray-100 dark:bg-gray-800 rounded-xl h-64 animate-pulse"></div>
+                ))}
+              </div>
+            ) : displayedNumbers.length > 0 ? (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+              >
+                {displayedNumbers.map((number, index) => (
+                  <NumberCard key={`${selectedPattern}-${number.id}-${index}`} number={number} index={index} />
+                ))}
+              </motion.div>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-gray-500 dark:text-gray-400">
+                  {useCustomUpload 
+                    ? "No matching numbers found in your CSV. Try uploading a different file."
+                    : "No numbers match this pattern in our catalog."}
+                </p>
+              </div>
+            )}
           </motion.div>
         </div>
       </div>
