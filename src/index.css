@@ -78,7 +78,7 @@
 
 /* Pattern Buttons */
 .pattern-button-active {
-  @apply bg-primary text-white border-primary;
+  @apply bg-primary text-primary-foreground border-primary;
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -155,7 +155,7 @@
 }
 
 .mode-toggle-active {
-  color: white;
+  color: theme('colors.primary.foreground');
 }
 
 .mode-toggle-inactive {

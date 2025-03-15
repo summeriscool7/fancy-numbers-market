@@ -52,15 +52,15 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       variant="outline" 
       size="icon" 
       onClick={toggleTheme}
-      className="rounded-full w-9 h-9 p-0 border-gray-200 dark:border-gray-700"
+      className="rounded-full w-10 h-10 p-0 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800"
       aria-label="Toggle theme"
     >
+      <span className="sr-only">Toggle theme</span>
       {theme === 'dark' ? (
         <Sun size={18} className="text-amber-400" />
       ) : (
-        <Moon size={18} />
+        <Moon size={18} className="text-slate-700" />
       )}
-      <span className="sr-only">Toggle theme</span>
     </Button>
   );
 
