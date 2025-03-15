@@ -1,3 +1,5 @@
+import { NumberData } from './filterUtils';
+
 // Function to generate mock numbers with patterns
 export const generateMockNumbers = (count: number): NumberData[] => {
   const numbers: NumberData[] = [];
