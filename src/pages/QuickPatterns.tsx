@@ -11,14 +11,25 @@ import { NumberData } from '@/utils/filterUtils';
 import CSVUploader from '@/components/CSVUploader';
 import { Filter, FileText } from 'lucide-react';
 
+function isConsecutiveDoubleDigitsFunction(digits) {
+  // Extract the 5 two-digit numbers
+  const num3 = parseInt(digits.substring(4, 6));
+  const num4 = parseInt(digits.substring(6, 8));
+  const num5 = parseInt(digits.substring(8, 10));
+  
+  // Check if they form a consecutive sequence
+  return num4 === num3 + 1 && 
+         num5 === num4 + 1;
+}
+
 const patterns = [
   "000 Number", "00AB 00CD", "1008", "108 108 Numbers", "143 143 Love Number",
   "420 420 Number", "786 Numbers", "78692 Numbers", "850000 xyxy", "916 916 Gold",
-  "AAB AAB XY XY", "AAB AAB XYXY", "AB XXX CD YYY", "AB00 CD00", "ABA ABA XYXY",
+  "AAB AAB XY XY", "AB XXX CD YYY", "AB00 CD00", "ABA ABA XYXY",
   "ABAB CDCD XY", "ABAB X CDCD X", "ABAB XY ACAC", "ABAB XY CDCD", "ABB ABB Ending",
   "ABB ABB XYXY", "ABC ABC XYXY", "ABC ABD XY XY", "Abcd Abcd", "ABCD ABCD XY",
   "ABCD XY ABCD", "ABXXX CDYYY", "AXXX BYYY", "AxxxB CxxxD", "Counting 11 12 13 TYPE",
-  "Counting Numbers", "Double 786 786", "Double Jodi", "Doubling Number", "ENDING XXX",
+  "Counting Numbers", "Double 786 786", "Double Jodi", "ENDING XXX",
   "Ending XXYYZZ", "Fancy Number", "Hexa Ending", "Middle Hexa", "Middle Penta",
   "Middle xxx yyy", "Middle xxxx", "Middle Xy Xy Xy", "Mirror Numbers", "Penta Ending",
   "Semi Mirror Number", "Special Digit Numbers", "Starting xxxx", "Tetra Number", "Vvip Number",
@@ -40,6 +51,14 @@ const matchesPattern = (number: NumberData, pattern: string): boolean => {
   const digits = number.number.toString();
 
   switch(pattern) {
+    case "ABB ABB XYXY":
+      return /(\d)(\d)\2(\d)(\d)\4(\d)(\d)\6\5\6/.test(digits);
+    case "ABC ABC XYXY":
+      return /(\d)(\d)(\d)(\d)(\d)(\d)(\d)(\d)\7\8/.test(digits);
+    case "ABC ABD XY XY":
+      return /(\d)(\d)(\d)(\d)(\d)(\d)(\d)(\d)\7\8/.test(digits);
+    case "Abcd Abcd":
+      return digits[2] === digits[6] && digits[3] === digits[7] && digits[4] === digits[8] && digits[5] === digits[9]
     case "000 Number":
       return /\d*000\d*/.test(digits);
     case "00AB 00CD":
@@ -50,6 +69,12 @@ const matchesPattern = (number: NumberData, pattern: string): boolean => {
       return digits.includes('1008');
     case "108 108 Numbers":
       return /.*108.*108.*/.test(digits);
+    case "ABCD ABCD XY":
+      return digits[0] === digits[4] && digits[1] === digits[5] && digits[2] === digits[6] && digits[3] === digits[7];
+    case "ABCD XY ABCD":
+      return /^(\d{2})(\d{2})\d{2}\1\2$/.test(digits);
+    case "ABXXX CDYYY":
+      return /^(\d{2})(\d)\2\2(\d{2})(\d)\4\4$/.test(digits);
     case "143 143 Love Number":
       return /.*143.*143.*/.test(digits);
     case "420 420 Number":
@@ -68,11 +93,9 @@ const matchesPattern = (number: NumberData, pattern: string): boolean => {
     case "XY XY":
       return /(\d{2})\1/.test(digits);
     case "AAB AAB XY XY":
-      return /(\d)(\d)(\d)\1\2\3.*(\d)(\d)\4\5/.test(digits);
-    case "AAB AAB XYXY":
-      return /(\d)(\d)(\d)\1\2\3.*(\d)(\d)\4\5/.test(digits);
+      return digits[0] === digits[1] && digits[3] === digits[4] && digits[2] === digits[5] && digits[6] === digits[8] && digits[7] === digits[9];
     case "ABA ABA XYXY":
-      return /(\d)(\d)\1\1\2\1.*(\d)(\d)\3\4/.test(digits);
+      return digits[0] === digits[2] && digits[2] === digits[3] && digits[3] === digits[5] && digits[1] === digits[4] && digits[7] === digits[9] && digits[6] === digits[8];
     case "AB XXX CD YYY":
       return /(\d)(\d)(\d)\3\3(\d)(\d)(\d)\6\6/.test(digits);
     case "AB00 CD00":
@@ -90,41 +113,39 @@ const matchesPattern = (number: NumberData, pattern: string): boolean => {
     case "ABB ABB Ending":
       return /.*(\d)(\d)\2\1\2\2$/.test(digits);
     case "AXXX BYYY":
-      return /(\d)(\d)\2\2(\d)(\d)\5\5/.test(digits);
+      return (digits[3] === digits[4] && digits[4] === digits[5] && digits[7] === digits[8] && digits[8] === digits[9]) || /^\d{2}(\d)(\d)\2\2(\d)(\d)\4\4$/.test(digits);
     case "AxxxB CxxxD":
-      return /(\d)(\d)\2\2(\d)(\d)(\d)\6\6(\d)/.test(digits);
+      return digits[1] === digits[2] && digits[2] === digits[3] && digits[6] === digits[7] && digits[7] === digits[8];
 
     case "Counting 11 12 13 TYPE":
-      return /(0?1\d){3,}/.test(digits) || /(1[0-2]){3,}/.test(digits);
+      return isConsecutiveDoubleDigitsFunction(digits);
     case "Counting Numbers":
-      return /(?:0?1(?:2(?:3(?:4(?:5(?:6(?:7(?:89?)?)?)?)?)?)?)?)|(?:9(?:8(?:7(?:6(?:5(?:4(?:3(?:21?)?)?)?)?)?)?)?)|(?:(?:12(?:34?)?)|(?:(?:23(?:45?)?)|(?:(?:34(?:56?)?)|(?:(?:45(?:67?)?)|(?:(?:56(?:78?)?)|(?:(?:67(?:89?)?)|(?:78(?:90?)?)?)?)?)?)?)?)/.test(digits);
+      return (/(?:0?1(?:2(?:3(?:4(?:5(?:6(?:7(?:89?)?)?)?)?)?)?)?)|(?:9(?:8(?:7(?:6(?:5(?:4(?:3(?:21?)?)?)?)?)?)?)?)|(?:(?:12(?:34?)?)|(?:(?:23(?:45?)?)|(?:(?:34(?:56?)?)|(?:(?:45(?:67?)?)|(?:(?:56(?:78?)?)|(?:(?:67(?:89?)?)|(?:78(?:90?)?)?)?)?)?)?)?)/.test(digits)) || isConsecutiveDoubleDigitsFunction(digits);
     case "Double 786 786":
       return /786.*786/.test(digits);
     case "Double Jodi":
       return /(\d{2}).*\1/.test(digits);
-    case "Doubling Number":
-      return /(\d)(\1|\2){5,}/.test(digits);
 
     case "ENDING XXX":
-      return /(\d)\1\1$/.test(digits);
+      return digits[7] === digits[8] && digits[8] === digits[9];
     case "Ending XXYYZZ":
-      return /(\d)\1(\d)\2(\d)\3$/.test(digits);
+      return digits[8] === digits[9] && digits[6] === digits[7] && digits[4] === digits[5];
     case "Starting xxxx":
-      return /^(\d)\1\1\1/.test(digits);
+      return digits[0] === digits[1] && digits[1] === digits[2] && digits[2] === digits[3];
     case "XXXX Ending":
-      return /(\d)\1\1\1$/.test(digits);
+      return digits[7] === digits[8] && digits[8] === digits[9] && digits[6] === digits[7];
     case "XXYYZZ Starting":
-      return /^(\d)\1(\d)\2(\d)\3/.test(digits);
+      return digits[0] === digits[1] && digits[2] === digits[3] && digits[4] === digits[5];
     case "XXX YYY Ending":
-      return /(\d)\1\1(\d)\2\2$/.test(digits);
+      return digits[4] === digits[5] && digits[5] === digits[6] && digits[7] === digits[8] && digits[8] === digits[9];
     case "XXX YYY Starting":
-      return /^(\d)\1\1(\d)\2\2/.test(digits);
+      return digits[0] === digits[1] && digits[1] === digits[2] && digits[7] === digits[8] && digits[8] === digits[9];
     case "XY XY XY Starting":
-      return /^(\d)(\d)\1\2(\d)(\d)/.test(digits);
+      return /^(\d)(\d)\1\2\1\2/.test(digits);
     case "XYZ XYZ Ending":
-      return /(\d)(\d)(\d)\1\2\3$/.test(digits);
+      return /.*(\d)(\d)(\d)\1\2\3$/.test(digits);
     case "Xy Xy Xy Ending":
-      return /(?:(\d)(\d)){3}$/.test(digits);
+      return /.*(\d\d)\1\1$/.test(digits);
 
     case "Middle Hexa":
       return /\d{2}(\d)\1\1\1\1\1\d{2}/.test(digits);
@@ -135,7 +156,7 @@ const matchesPattern = (number: NumberData, pattern: string): boolean => {
     case "Middle xxxx":
       return /\d*(\d)\1\1\1\d*/.test(digits);
     case "Middle Xy Xy Xy":
-      return /\d*(?:(\d)(\d)){3}\d*/.test(digits);
+      return /\d*(\d\d)\1\1\d*/.test(digits);
 
     case "Fancy Number":
       return /(\d)\1{2,}/.test(digits) || /(\d{2})\1+/.test(digits) || /(?:0123|1234|2345|3456|4567|5678|6789|9876|8765|7654|6543|5432|4321|3210)/.test(digits);

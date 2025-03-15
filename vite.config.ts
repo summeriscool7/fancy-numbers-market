@@ -43,6 +43,14 @@ export default defineConfig(({ mode }) => ({
             "price":5000
         },
         {
+          "number":7079111213,
+          "price":5000
+      },
+        {
+          "number":7079143143,
+          "price":5000
+      },
+        {
             "number":7079305955,
             "price":5000
         },
