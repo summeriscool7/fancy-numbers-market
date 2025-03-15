@@ -36,7 +36,8 @@ const patterns = [
   "Without 2 4 8", "X ABCD ABCD X", "X00 X00", "X00X X00X", "XXX YYY Ending",
   "XXX YYY Starting", "XXXX Ending", "XXYYZZ Starting", "XY ABAB CDCD", "XY ABC ABC XY",
   "XY ABCD ABCD", "XY XY", "Xy Xy Xy Ending", "XY XY XY Starting", "XYZ XYZ Ending",
-  "Years Numbers", "0000 Number", "AB00 CD01", "787 Numbers"
+  "Years Numbers", "0000 Number", "AB00 CD01", "787 Numbers", "ABCD X ABCD Y", "X00X Y00Y", "XY ABBA ABBA",
+  "ABCC X ABCC Y", "ABC XX ABC YY", "XY A0 B0 C0 D0"
 ];
 
 const customPatterns = [
@@ -51,6 +52,21 @@ const matchesPattern = (number: NumberData, pattern: string): boolean => {
   const digits = number.number.toString();
 
   switch(pattern) {
+    case "XY A0 B0 C0 D0":
+      return /^[0-9][0-9]([0-9])0([0-9])0([0-9])0([0-9])0$/g.test(digits);
+    case "ABC XX ABC YY":
+      return /^([0-9])([0-9])([0-9])([0-9])\4([0-9])\1\2\3\5\5$/.test(digits);
+    case "ABCC X ABCC Y":
+      return /^([0-9])([0-9])([0-9])\3[0-9]\1\2\3\3[0-9]$/.test(digits);
+    case "XY ABBA ABBA":
+      return /^[0-9][0-9]([0-9])([0-9])\2\1\1\2\2\1$/.test(digits);
+    case "ABXBABAB":
+      return /^[0-9]{2}([0-9])([0-9])[0-9]\2\1\2\1\2$/.test(digits);
+    case "X00X Y00Y":
+      return /^\d{2}(\d00\d\d00\d)$/.test(digits);
+
+    case "ABCD X ABCD Y":
+      return digits[0] === digits[5] && digits[1] === digits[6] && digits[2] === digits[7] && digits[3] === digits[8]
     case "ABB ABB XYXY":
       return /(\d)(\d)\2(\d)(\d)\4(\d)(\d)\6\5\6/.test(digits);
     case "ABC ABC XYXY":
@@ -148,9 +164,9 @@ const matchesPattern = (number: NumberData, pattern: string): boolean => {
       return /.*(\d\d)\1\1$/.test(digits);
 
     case "Middle Hexa":
-      return /\d{2}(\d)\1\1\1\1\1\d{2}/.test(digits);
+      return /^[0-9]*(\d)\1\1\1\1\1[0-9]*$/.test(digits);;
     case "Middle Penta":
-      return /\d{2,3}(\d)\1\1\1\1\d{2,3}/.test(digits);
+      return /^[0-9]*(\d)\1\1\1\1[0-9]*$/.test(digits);
     case "Middle xxx yyy":
       return /\d*(\d)\1\1(\d)\2\2\d*/.test(digits);
     case "Middle xxxx":
@@ -183,11 +199,11 @@ const matchesPattern = (number: NumberData, pattern: string): boolean => {
     case "X ABCD ABCD X":
       return /(\d)(\d)(\d)(\d)(\d)\2\3\4\5\1/.test(digits);
     case "X00 X00":
-      return /(\d)00(\d)00/.test(digits);
+      return /^[0-9]{4}(\d)00\100$/.test(digits);
     case "X00X X00X":
-      return /(\d)00\1(\d)00\2/.test(digits);
+      return /^[0-9]{2}([0-9])00\1\100\1$/.test(digits);
     case "XY ABAB CDCD":
-      return /(\d)(\d)(\d)(\d)\3\4(\d)(\d)\5\6/.test(digits);
+      return /^(\d)(\d)(\d)(\d)\3\4(\d)(\d)\5\6$/.test(digits);
     case "XY ABC ABC XY":
       return /(\d)(\d)(\d)(\d)(\d)\3\4\5\1\2/.test(digits);
     case "XY ABCD ABCD":
