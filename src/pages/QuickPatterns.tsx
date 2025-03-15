@@ -23,6 +23,7 @@ function isConsecutiveDoubleDigitsFunction(digits) {
 }
 
 const patterns = [
+  "3 DIGIT", 
   "000 Number", "00AB 00CD", "1008", "108 108 Numbers", "143 143 Love Number",
   "420 420 Number", "786 Numbers", "78692 Numbers", "850000 xyxy", "916 916 Gold",
   "AAB AAB XY XY", "AB XXX CD YYY", "AB00 CD00", "ABA ABA XYXY",
@@ -41,17 +42,34 @@ const patterns = [
 ];
 
 const customPatterns = [
+  "3 DIGIT",
   "SuperVIP", "XXXX Pattern", "X00X Y00Y", "ABCD ABCD", "ABXBABAB", 
   "MX Three", "Others", "ABCD X ABCD Y", "XY ABBA ABBA", 
   "ABCC X ABCC Y", "ABC XX ABC YY", "XY A0 B0 C0 D0", 
   "XY ABAB CDCD", "ABC ABC WXYZ", "ABCD XYZ XYZ", 
-  "New Category 1", "ABABDABABE"
+  "New Category 1", "ABABDABABE", "000 Number", "00AB 00CD", "1008", "108 108 Numbers", "143 143 Love Number",
+  "420 420 Number", "786 Numbers", "78692 Numbers", "850000 xyxy", "916 916 Gold",
+  "AAB AAB XY XY", "AB XXX CD YYY", "AB00 CD00", "ABA ABA XYXY",
+  "ABAB CDCD XY", "ABAB X CDCD X", "ABAB XY ACAC", "ABAB XY CDCD", "ABB ABB Ending",
+  "ABB ABB XYXY", "ABC ABC XYXY", "ABC ABD XY XY", "Abcd Abcd", "ABCD ABCD XY",
+  "ABCD XY ABCD", "ABXXX CDYYY", "AXXX BYYY", "AxxxB CxxxD", "Counting 11 12 13 TYPE",
+  "Counting Numbers", "Double 786 786", "Double Jodi", "ENDING XXX",
+  "Ending XXYYZZ", "Fancy Number", "Hexa Ending", "Middle Hexa", "Middle Penta",
+  "Middle xxx yyy", "Middle xxxx", "Middle Xy Xy Xy", "Mirror Numbers", "Penta Ending",
+  "Semi Mirror Number", "Special Digit Numbers", "Starting xxxx", "Tetra Number", "Vvip Number",
+  "Without 2 4 8", "X ABCD ABCD X", "X00 X00", "X00X X00X", "XXX YYY Ending",
+  "XXX YYY Starting", "XXXX Ending", "XXYYZZ Starting", "XY ABAB CDCD", "XY ABC ABC XY",
+  "XY ABCD ABCD", "XY XY", "Xy Xy Xy Ending", "XY XY XY Starting", "XYZ XYZ Ending",
+  "Years Numbers", "0000 Number", "AB00 CD01", "787 Numbers", "ABCD X ABCD Y", "X00X Y00Y", "XY ABBA ABBA",
+  "ABCC X ABCC Y", "ABC XX ABC YY", "XY A0 B0 C0 D0"
 ];
 
 const matchesPattern = (number: NumberData, pattern: string): boolean => {
   const digits = number.number.toString();
 
   switch(pattern) {
+    case "3 DIGIT":
+      return new Set(digits.split('')).size === 3
     case "XY A0 B0 C0 D0":
       return /^[0-9][0-9]([0-9])0([0-9])0([0-9])0([0-9])0$/g.test(digits);
     case "ABC XX ABC YY":
@@ -68,11 +86,11 @@ const matchesPattern = (number: NumberData, pattern: string): boolean => {
     case "ABCD X ABCD Y":
       return digits[0] === digits[5] && digits[1] === digits[6] && digits[2] === digits[7] && digits[3] === digits[8]
     case "ABB ABB XYXY":
-      return /(\d)(\d)\2(\d)(\d)\4(\d)(\d)\6\5\6/.test(digits);
+      return digits[0] === digits[3] && digits[1] === digits[4] && digits[7] === digits[9] && digits[6] === digits[8] && digits[2] === digits[5] && digits[1] === digits[2];
     case "ABC ABC XYXY":
-      return /(\d)(\d)(\d)(\d)(\d)(\d)(\d)(\d)\7\8/.test(digits);
+      return digits[0] === digits[3] && digits[1] === digits[4] && digits[7] === digits[9] && digits[6] === digits[8] && digits[2] === digits[5];
     case "ABC ABD XY XY":
-      return /(\d)(\d)(\d)(\d)(\d)(\d)(\d)(\d)\7\8/.test(digits);
+      return digits[0] === digits[3] && digits[1] === digits[4] && digits[7] === digits[9] && digits[6] === digits[8];
     case "Abcd Abcd":
       return digits[2] === digits[6] && digits[3] === digits[7] && digits[4] === digits[8] && digits[5] === digits[9]
     case "000 Number":
@@ -102,7 +120,7 @@ const matchesPattern = (number: NumberData, pattern: string): boolean => {
     case "78692 Numbers":
       return digits.includes('78692');
     case "850000 xyxy":
-      return /85(?:(\d)\1){2,}/.test(digits);
+      return /85(?:(\d)\1){2,}/.test(digits) || digits.includes('850000');
     case "916 916 Gold":
       return /.*916.*916.*/.test(digits);
 
