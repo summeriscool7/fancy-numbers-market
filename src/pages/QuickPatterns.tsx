@@ -80,6 +80,8 @@ const matchesPattern = (number: NumberData, pattern: string): boolean => {
   const digits = number.number.toString();
 
   switch(pattern) {
+    case "Without 2 4 8, Not More than 2 times":
+      return /^(?!.*[248])(?!(\d).*\1{2})\d{10}$/.test(digits);
     case "3 DIGIT":
       return new Set(digits.split('')).size === 3
     case "XY A0 B0 C0 D0":
