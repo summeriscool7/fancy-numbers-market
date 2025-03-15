@@ -10,6 +10,19 @@ import { Separator } from '@/components/ui/separator';
 import { NumberData } from '@/utils/filterUtils';
 import CSVUploader from '@/components/CSVUploader';
 import { Filter, FileText } from 'lucide-react';
+import { CSVLink } from "react-csv";
+
+const csvHeaders = [
+  { label: "ID", key: "id" },
+  { label: "Number", key: "number" },
+  { label: "Price", key: "price" },
+  { label: "Carrier", key: "carrier" },
+  { label: "Special Pattern", key: "specialPattern" },
+  { label: "Digit Sum", key: "digitSum" },
+  { label: "Single Digit Sum", key: "singleDigitSum" }
+];
+
+
 
 function isConsecutiveDoubleDigitsFunction(digits) {
   // Extract the 5 two-digit numbers
@@ -524,6 +537,20 @@ const QuickPatterns = () => {
                   : `Browse our collection of ${selectedPattern} mobile numbers. These numbers have special patterns that make them easy to remember.`
                 }
               </p>
+
+              {useCustomUpload && displayedNumbers.length > 0 && (
+                <div className="mb-4">
+                  <CSVLink 
+                    data={displayedNumbers} 
+                    headers={csvHeaders} 
+                    filename={`${selectedPattern}_numbers.csv`}
+                  >
+                    <Button variant="outline">
+                      Download CSV
+                    </Button>
+                  </CSVLink>
+                </div>
+              )}
             </div>
 
             {isLoading ? (
