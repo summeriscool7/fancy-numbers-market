@@ -276,6 +276,28 @@ const QuickPatterns = () => {
             num.singleDigitSum = sum;
           });
         });
+
+        customPatterns.forEach(pattern => {
+          formattedCategories[pattern] = uploadedNumbers
+            .filter(number => matchesPattern({ number: number.toString() }, pattern))
+            .map((num, index) => ({
+              id: `custom-${pattern}-${index}`,
+              number: num.toString(),
+              price: Math.floor(Math.random() * 5000) + 500,
+              carrier: ['VI', 'AIRTEL', 'JIO'][Math.floor(Math.random() * 3)],
+              specialPattern: [pattern],
+              digitSum: num.toString().split('').reduce((sum, digit) => sum + parseInt(digit), 0),
+              singleDigitSum: 0
+            }));
+          
+          formattedCategories[pattern].forEach(num => {
+            let sum = num.digitSum;
+            while (sum >= 10) {
+              sum = sum.toString().split('').reduce((s, d) => s + parseInt(d), 0);
+            }
+            num.singleDigitSum = sum;
+          });
+        });
         
         setCategorizedNumbers(formattedCategories);
         
@@ -356,52 +378,10 @@ const QuickPatterns = () => {
         setDisplayedNumbers(categorizedNumbers.abcd_xyz_xyz || []);
       } else if (selectedPattern === 'New Category 1') {
         setDisplayedNumbers(categorizedNumbers.new_categ1 || []);
-      } else if (selectedPattern === "Without 2 4 8, Not More than 2 times") {
-        setDisplayedNumbers(
-          uploadedNumbers
-            .filter(number => {
-              const numStr = number.toString();
-        
-              // 1. Ensure the number does not contain 2, 4, or 8
-              if (/[248]/.test(numStr)) return false;
-        
-              // 2. Ensure no digit appears more than twice
-              const digitCounts = [...numStr].reduce((countMap, digit) => {
-                countMap[digit] = (countMap[digit] || 0) + 1;
-                return countMap;
-              }, {} as Record<string, number>);
-        
-              return Object.values(digitCounts).every(count => count <= 2);
-            })
-            .map(number => {
-              const numStr = number.toString();
-        
-              // Calculate digit sum
-              const digitSum = numStr.split('').reduce((sum, digit) => sum + parseInt(digit), 0);
-        
-              // Calculate singleDigitSum (Digital Root)
-              let singleDigitSum = digitSum;
-              while (singleDigitSum >= 10) {
-                singleDigitSum = singleDigitSum
-                  .toString()
-                  .split('')
-                  .reduce((sum, digit) => sum + parseInt(digit), 0);
-              }
-        
-              return {
-                id: `custom-without-248-${number}`,
-                number: numStr,
-                price: Math.floor(Math.random() * 5000) + 500,
-                carrier: ['VI', 'AIRTEL', 'JIO'][Math.floor(Math.random() * 3)],
-                specialPattern: ["Without 2 4 8, Not More than 2 times"],
-                digitSum,
-                singleDigitSum,
-              };
-            })
-        );
-        
       } else if (selectedPattern === 'ABABDABABE') {
         setDisplayedNumbers(categorizedNumbers.ababdababe || []);
+      } else if (selectedPattern) {
+        setDisplayedNumbers(categorizedNumbers[selectedPattern] || []);
       } else {
         setDisplayedNumbers([]);
       }
