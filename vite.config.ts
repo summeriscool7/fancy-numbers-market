@@ -31,6 +31,10 @@ export default defineConfig(({ mode }) => ({
     __APP_CONFIG__: JSON.stringify({
       list: [
         {
+          "number": 6209203040,
+          "price": 3000
+        },
+        {
           "number": 6209304050,
           "price": 3000
         },
